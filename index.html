@@ -608,6 +608,7 @@ form.box details.more{margin-top:0;grid-column:1/-1}
         <div class="field full"><label for="renameInput">Jina la biashara</label><input id="renameInput" maxlength="60"></div>
         <div class="field"><label for="bizSimu">Simu ya biashara</label><input id="bizSimu" type="tel" inputmode="tel" maxlength="20"></div>
         <div class="field"><label for="bizMahali">Mahali</label><input id="bizMahali" maxlength="60"></div>
+        <div class="field" id="bizVibandaWrap" hidden><label for="bizVibanda">Idadi ya vibanda</label><input id="bizVibanda" type="number" inputmode="numeric" min="1" step="1"></div>
         <p class="hint" id="bizAina"></p>
         <div class="actions"><button class="btn" type="submit">Hifadhi</button></div>
       </form>
@@ -763,6 +764,7 @@ form.box details.more{margin-top:0;grid-column:1/-1}
       <div class="field"><label for="st-aina">Aina ya biashara</label>
         <select id="st-aina"><option value="duka">Duka (bidhaa, stoo, mauzo, madeni)</option><option value="pembejeo">Duka la pembejeo za kilimo</option><option value="uzalishaji">Uzalishaji na mauzo (mf. tofali, kokoto)</option><option value="wakala">Wakala wa pesa (M-Pesa, Mixx, Airtel, benki)</option></select></div>
       <div class="field"><label for="st-simu">Namba ya simu</label><input id="st-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
+      <div class="field" id="st-vibandaWrap" hidden><label for="st-vibanda">Una vibanda vingapi?</label><input id="st-vibanda" type="number" inputmode="numeric" min="1" step="1" value="1"><span class="note" id="st-bei"></span></div>
       <div class="field"><label for="st-mahali">Mahali (mtaa, mji)</label><input id="st-mahali" maxlength="60" placeholder="Mfano: Kariakoo, Dar es Salaam"></div>
       <p class="err" id="st-err" hidden></p>
       <button class="btn" type="submit" id="st-submit">Fungua biashara</button>

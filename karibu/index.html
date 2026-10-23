@@ -127,6 +127,7 @@ section.block{padding:64px 0 0}
 .plan li svg{width:18px;height:18px;flex-shrink:0;margin-top:3px;stroke:var(--green);fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .plan .btn{width:100%}
 .note{font-size:14px;color:var(--muted);margin-top:14px}
+.tiers{font-size:14.5px;color:var(--ink);background:var(--gold-s);border-radius:12px;padding:9px 12px;margin-top:8px}
 
 .faq{margin-top:22px;display:grid;gap:10px}
 .faq details{background:#fff;border:1px solid var(--line);border-radius:16px;padding:0 18px}
@@ -287,7 +288,8 @@ footer a{color:var(--green);font-weight:600}
       </div>
       <div class="plan">
         <h3>Wakala</h3><p class="for">Mawakala wa M-Pesa, Mixx, Airtel na benki</p>
-        <div class="amt"><span data-price="wakala">TSh 10,000</span> <small>/ mwezi</small></div>
+        <div class="amt"><span data-price="wakala">TSh 7,000</span> <small>/ mwezi kwa kibanda</small></div>
+        <p class="tiers" id="tiers">Vibanda 2–5: <b>TSh 6,000</b> kila kimoja · Vibanda 6+: <b>TSh 5,000</b> kila kimoja</p>
         <ul>
           <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Kuweka na kutoa kwa kila mtandao</li>
           <li><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>Salio la floti na pesa taslimu</li>
@@ -341,7 +343,10 @@ footer a{color:var(--green);font-weight:600}
   // prices and the WhatsApp number come from the app's own settings, so this page never goes out of date
   try{
     var C=window.APP_CONFIG||{},B=C.bei||{},f=function(n){return 'TSh '+Number(n).toLocaleString('en-US')};
-    document.querySelectorAll('[data-price]').forEach(function(e){var v=B[e.getAttribute('data-price')];if(v)e.textContent=f(v)});
+    document.querySelectorAll('[data-price]').forEach(function(e){var v=B[e.getAttribute('data-price')];if(v&&typeof v==='object')v=v[1];if(v)e.textContent=f(v)});
+    if(B.wakala&&typeof B.wakala==='object'){var ks=Object.keys(B.wakala).map(Number).sort(function(a,b){return a-b}),parts=[];
+      ks.forEach(function(k,i){if(k===1)return;var nx=ks[i+1];parts.push('Vibanda '+k+(nx?'–'+(nx-1):'+')+': <b>'+f(B.wakala[k])+'</b> kila kimoja')});
+      document.getElementById('tiers').innerHTML=parts.join(' · ');}
     var wa=String(C.adminWhatsApp||'').replace(/\D/g,'');
     if(wa)['waBtn','waFab'].forEach(function(id){var a=document.getElementById(id);a.href=a.href.replace(/wa\.me\/\d+/,'wa.me/'+wa)});
   }catch(e){}

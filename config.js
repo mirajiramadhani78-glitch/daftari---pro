@@ -4,7 +4,8 @@ window.APP_CONFIG = {
   adminEmail: "mirajiramadhani78@gmail.com",
 
   // Bei kwa mwezi (TSh). Badilisha uonavyo; app inasoma hapa kila inapofunguliwa.
-  bei: { duka: 10000, wakala: 10000 },
+  // Wakala analipa kwa kila kibanda: kibanda 1 = 7,000; vibanda 2-5 = 6,000 kila kimoja; vibanda 6 na zaidi = 5,000 kila kimoja.
+  bei: { duka: 10000, wakala: { 1: 7000, 2: 6000, 6: 5000 } },
 
   // Siku za kujaribu bure kwa biashara mpya (zisizidi 14).
   sikuMajaribio: 14,
