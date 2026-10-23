@@ -2,11 +2,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ADMIN wa Daftari Pro: barua pepe hii (iwe sawa na adminEmail kwenye config.js), iliyothibitishwa
+    // ADMIN wa Daftari Pro: barua pepe hii (iwe sawa na adminEmail kwenye config.js)
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email.lower() == 'mirajiramadhani78@gmail.com'
-        && request.auth.token.email_verified == true;
+        && request.auth.token.email.lower() == 'mirajiramadhani78@gmail.com';
     }
     function signedIn() { return request.auth != null; }
     function myEmail() { return request.auth.token.email.lower(); }
