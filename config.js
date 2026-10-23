@@ -10,7 +10,7 @@ window.APP_CONFIG = {
   sikuMajaribio: 14,
 
   // Wateja walipe wapi
-  malipo: { njia: "Mixx by Yas", namba: "0655 762 452", jina: "" },
+  malipo: { njia: "Mixx by Yas", namba: "0655 762 452", jina: "MIRAJI RAMADHANI" },
 
   // WhatsApp yako (255…): mteja akishalipa, app inamfungulia ujumbe wa kukutumia
   adminWhatsApp: "255655762452",
