@@ -10,6 +10,9 @@ window.APP_CONFIG = {
   // Siku za kujaribu bure; zinaanza siku unayomthibitisha mteja.
   sikuMajaribio: 30,
 
+  // true = kila biashara mpya inasubiri uithibitishe kwenye Admin; false = majaribio yanaanza papo hapo.
+  thibitishaKwaMkono: false,
+
   // Wateja walipe wapi
   malipo: { njia: "Mixx by Yas", namba: "0655 762 452", jina: "MIRAJI RAMADHANI" },
 

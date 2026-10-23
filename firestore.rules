@@ -22,14 +22,14 @@ service cloud.firestore {
     match /maduka/{d} {
       allow read: if signedIn() && (resource.data.mmiliki == request.auth.uid || isAdmin()
         || exists(/databases/$(database)/documents/maduka/$(d)/wanachama/$(myEmail())));
-      // mtu yeyote aliyeingia anaweza kufungua biashara moja mpya yenye majaribio yasiyozidi siku 15
+      // mtu yeyote aliyeingia anaweza kufungua biashara mpya yenye majaribio yasiyozidi siku 31
       allow create: if signedIn()
         && request.resource.data.mmiliki == request.auth.uid
         && request.resource.data.mmilikiEmail == myEmail()
         && request.resource.data.majaribio == true
-        && request.resource.data.imethibitishwa == false
+        && request.resource.data.imethibitishwa is bool
         && request.resource.data.hadi is timestamp
-        && request.resource.data.hadi < request.time + duration.value(15, 'd')
+        && request.resource.data.hadi < request.time + duration.value(31, 'd')
         && request.resource.data.aina in ['duka', 'wakala'];
       // mmiliki anabadilisha jina, simu, mahali na mitandao; muda wa kifurushi ni wa admin tu
       allow update: if isAdmin() || (signedIn() && resource.data.mmiliki == request.auth.uid
