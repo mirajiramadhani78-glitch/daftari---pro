@@ -49,10 +49,8 @@ service cloud.firestore {
       }
       // data ya biashara: kusoma muda wote, kuandika kifurushi kikiwa hai tu
       match /{col}/{id} {
-        allow read: if (isMember(d) || isAdmin())
-          && col in ['bidhaa', 'mauzo', 'manunuzi', 'matumizi', 'malipoMadeni', 'miamala', 'floti', 'hesabu'];
-        allow write: if isMember(d) && isPaid(d)
-          && col in ['bidhaa', 'mauzo', 'manunuzi', 'matumizi', 'malipoMadeni', 'miamala', 'floti', 'hesabu'];
+        allow read: if (isMember(d) || isAdmin()) && !(col in ['wanachama', 'watumiaji']);
+        allow write: if isMember(d) && isPaid(d) && !(col in ['wanachama', 'watumiaji']);
       }
     }
 
