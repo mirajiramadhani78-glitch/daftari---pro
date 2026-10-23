@@ -7,8 +7,8 @@ window.APP_CONFIG = {
   // Wakala analipa kwa kila kibanda: kibanda 1 = 7,000; vibanda 2-5 = 6,000 kila kimoja; vibanda 6 na zaidi = 5,000 kila kimoja.
   bei: { duka: 10000, wakala: { 1: 7000, 2: 6000, 6: 5000 } },
 
-  // Siku za kujaribu bure kwa biashara mpya (zisizidi 14).
-  sikuMajaribio: 14,
+  // Siku za kujaribu bure; zinaanza siku unayomthibitisha mteja.
+  sikuMajaribio: 30,
 
   // Wateja walipe wapi
   malipo: { njia: "Mixx by Yas", namba: "0655 762 452", jina: "MIRAJI RAMADHANI" },
