@@ -569,6 +569,15 @@ a.btn{display:inline-block;text-decoration:none;text-align:center}
         <p class="err" id="mb-err" hidden></p>
         <div class="actions"><button class="btn" type="submit">Mruhusu</button></div>
       </form>
+      <form class="box" id="staffPhoneForm" novalidate style="margin-top:10px">
+        <div class="field full"><b>Au mwongeze kwa namba ya simu</b></div>
+        <div class="field full"><label for="sp-jina">Jina la mfanyakazi</label><input id="sp-jina" maxlength="60" autocomplete="off" placeholder="Mfano: Asha"></div>
+        <div class="field"><label for="sp-simu">Namba ya simu</label><input id="sp-simu" type="tel" inputmode="tel" autocomplete="off" placeholder="07XX XXX XXX"></div>
+        <div class="field"><label for="sp-pin">PIN (namba 6)</label><input id="sp-pin" inputmode="numeric" maxlength="6" autocomplete="off" translate="no"></div>
+        <p class="hint">Mfanyakazi atafungua Daftari Pro, abonyeze <b>"Mfanyakazi? Ingia kwa namba ya simu"</b>, kisha aandike namba hii na PIN hii. Hahitaji barua pepe. PIN yake itaonekana hapa juu ukiisahau.</p>
+        <p class="err" id="sp-err" hidden></p>
+        <div class="actions"><button class="btn" type="submit" id="sp-submit">Ongeza mfanyakazi</button></div>
+      </form>
     </div>
 
     <div class="panel">
@@ -647,6 +656,16 @@ a.btn{display:inline-block;text-decoration:none;text-align:center}
       <p class="err" id="li-err" hidden></p>
       <button class="btn" type="submit" id="li-submit">Ingia</button>
       <div class="gatelinks"><button type="button" class="linkbtn" data-gate="signup">Fungua akaunti</button><button type="button" class="linkbtn" data-gate="reset">Umesahau nenosiri?</button></div>
+      <button type="button" class="btn alt" data-gate="simu">Mfanyakazi? Ingia kwa namba ya simu</button>
+    </form>
+
+    <form id="phoneForm" class="gateform" hidden novalidate>
+      <p class="hint" style="margin:0">Kwa wafanyakazi walioongezwa na mmiliki kwa namba ya simu.</p>
+      <div class="field"><label for="ph-simu">Namba ya simu</label><input id="ph-simu" type="tel" inputmode="tel" autocomplete="tel" placeholder="07XX XXX XXX"></div>
+      <div class="field"><label for="ph-pin">PIN</label><input id="ph-pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="namba 6"></div>
+      <p class="err" id="ph-err" hidden></p>
+      <button class="btn" type="submit" id="ph-submit">Ingia</button>
+      <div class="gatelinks"><button type="button" class="linkbtn" data-gate="login">Ingia kwa barua pepe</button></div>
     </form>
 
     <form id="signupForm" class="gateform" hidden novalidate>

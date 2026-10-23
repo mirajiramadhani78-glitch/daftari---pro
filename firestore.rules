@@ -48,9 +48,12 @@ service cloud.firestore {
         allow write: if isMember(d) && request.auth.uid == uid;
       }
       // data ya biashara: kusoma muda wote, kuandika kifurushi kikiwa hai tu
+      match /siri/{email} {
+        allow read, write: if isShopOwner(d);
+      }
       match /{col}/{id} {
-        allow read: if (isMember(d) || isAdmin()) && !(col in ['wanachama', 'watumiaji']);
-        allow write: if isMember(d) && isPaid(d) && !(col in ['wanachama', 'watumiaji']);
+        allow read: if (isMember(d) || isAdmin()) && !(col in ['wanachama', 'watumiaji', 'siri']);
+        allow write: if isMember(d) && isPaid(d) && !(col in ['wanachama', 'watumiaji', 'siri']);
       }
     }
 
