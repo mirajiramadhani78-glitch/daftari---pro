@@ -235,6 +235,7 @@ table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;f
 .zrow{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1.2fr) auto;gap:6px;align-items:center}
 .zrow .mini{padding:8px 11px;font-size:15px}
 @media (max-width:420px){.zrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}.zrow select[data-zf="id"]{grid-column:1/-1}}
+a.btn{display:inline-block;text-decoration:none;text-align:center}
 </style>
 </head>
 <body>
@@ -671,7 +672,7 @@ table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;f
     </div>
 
     <form id="setupForm" class="gateform" hidden novalidate>
-      <p class="hint" style="margin:0">Karibu! Fungua biashara yako. Utapata siku <b class="trialDays">14</b> za kujaribu bure, bila kulipa chochote.</p>
+      <p class="hint" style="margin:0">Karibu! Fungua biashara yako. Ukishathibitishwa utapata siku <b class="trialDays">14</b> za kujaribu bure, bila kulipa chochote.</p>
       <div class="field"><label for="st-jina">Jina la biashara</label><input id="st-jina" maxlength="60" placeholder="Mfano: Juma General Store"></div>
       <div class="field"><label for="st-aina">Aina ya biashara</label>
         <select id="st-aina"><option value="duka">Duka (bidhaa, stoo, mauzo, madeni)</option><option value="pembejeo">Duka la pembejeo za kilimo</option><option value="uzalishaji">Uzalishaji na mauzo (mf. tofali, kokoto)</option><option value="wakala">Wakala wa pesa (M-Pesa, Mixx, Airtel, benki)</option></select></div>
@@ -686,6 +687,12 @@ table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;f
     <div id="gateInvite" hidden>
       <p class="hint" style="margin:14px 0">Umealikwa kujiunga na <b id="inviteShop" translate="no"></b>. Ukijiunga utajaza na kuona data ya biashara hiyo.</p>
       <div class="actions"><button class="btn" type="button" id="inviteJoin">Jiunge</button><button class="btn alt" type="button" id="inviteNo">Fungua biashara yangu badala yake</button></div>
+    </div>
+
+    <div id="gatePending" hidden>
+      <p class="hint" style="margin:14px 0">Asante kwa kujisajili! Biashara yako imepokelewa na <b>inasubiri kuthibitishwa</b> na Daftari Pro. Tukishakuthibitisha, app itafunguka yenyewe na siku <b class="trialDays">14</b> za majaribio ya bure zitaanza.</p>
+      <div class="actions"><a class="btn" id="pendWa" href="#" target="_blank" rel="noopener">Tujulishe kwa WhatsApp</a></div>
+      <div class="gatelinks" style="margin-top:12px"><button type="button" class="linkbtn adminBtn" hidden>Admin</button><button type="button" class="linkbtn" id="pendOut">Toka</button></div>
     </div>
 
     <div id="gateLocked" hidden>
@@ -720,6 +727,7 @@ table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;f
     <div class="panel"><h2>Biashara zote <small id="adminCount"></small></h2>
       <div class="periods" id="adminFilter" style="margin-bottom:8px">
         <button class="chip" data-af="zote" aria-pressed="true" type="button">Zote</button>
+        <button class="chip" data-af="inasubiri" aria-pressed="false" type="button">Wanasubiri</button>
         <button class="chip" data-af="majaribio" aria-pressed="false" type="button">Majaribio</button>
         <button class="chip" data-af="hai" aria-pressed="false" type="button">Wamelipa</button>
         <button class="chip" data-af="karibu" aria-pressed="false" type="button">Zinaisha karibuni</button>

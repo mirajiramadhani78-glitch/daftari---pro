@@ -16,7 +16,7 @@ service cloud.firestore {
         || exists(/databases/$(database)/documents/maduka/$(d)/wanachama/$(myEmail())));
     }
     // kifurushi kinatumika (majaribio au kimelipiwa)
-    function isPaid(d) { return shop(d).hadi > request.time; }
+    function isPaid(d) { return shop(d).hadi > request.time && shop(d).get('imethibitishwa', false) == true; }
 
     // Kila biashara
     match /maduka/{d} {
@@ -27,13 +27,14 @@ service cloud.firestore {
         && request.resource.data.mmiliki == request.auth.uid
         && request.resource.data.mmilikiEmail == myEmail()
         && request.resource.data.majaribio == true
+        && request.resource.data.imethibitishwa == false
         && request.resource.data.hadi is timestamp
         && request.resource.data.hadi < request.time + duration.value(15, 'd')
         && request.resource.data.aina in ['duka', 'wakala'];
       // mmiliki anabadilisha jina, simu, mahali na mitandao; muda wa kifurushi ni wa admin tu
       allow update: if isAdmin() || (signedIn() && resource.data.mmiliki == request.auth.uid
         && !request.resource.data.diff(resource.data).affectedKeys()
-            .hasAny(['hadi', 'majaribio', 'mmiliki', 'mmilikiEmail', 'aina', 'imeundwa', 'imelipiwa']));
+            .hasAny(['hadi', 'majaribio', 'imethibitishwa', 'mmiliki', 'mmilikiEmail', 'aina', 'imeundwa', 'imelipiwa']));
       allow delete: if isAdmin();
 
       // wafanyakazi walioruhusiwa (kwa barua pepe)
