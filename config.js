@@ -17,11 +17,11 @@ window.APP_CONFIG = {
 
   // Firebase: nakili kutoka Firebase → Project settings → Your apps → "firebaseConfig".
   firebase: {
-    apiKey: "WEKA_API_KEY_HAPA",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyD_4ZbQzdlo06-KtokaHmropKF_rxWKifc",
+    authDomain: "daftari---pro.firebaseapp.com",
+    projectId: "daftari---pro",
+    storageBucket: "daftari---pro.firebasestorage.app",
+    messagingSenderId: "818264850089",
+    appId: "1:818264850089:web:57763f30ccaf254629b3b8"
   }
 };
