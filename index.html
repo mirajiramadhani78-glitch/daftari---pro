@@ -714,6 +714,7 @@ table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;f
       <div class="headbtns"><button class="ghost" type="button" id="adminClose">Funga</button></div>
     </header>
     <div class="hint" id="adminVerify" hidden style="margin-bottom:12px">Kabla ya kuwasha au kufunga biashara, thibitisha barua pepe yako. <button class="btn alt" type="button" id="adminVerifyBtn" style="margin-top:8px">Tuma barua ya kuthibitisha</button> <button class="btn alt" type="button" id="adminVerifyDone" style="margin-top:8px">Nimeshathibitisha</button></div>
+    <p class="err" id="adminErr" hidden style="margin-bottom:12px"></p>
     <div class="kpis" id="adminKpis"></div>
     <div class="panel"><h2>Malipo yanayosubiri <small id="adminPayCount"></small></h2><div class="box" id="adminPay"></div></div>
     <div class="panel"><h2>Biashara zote <small id="adminCount"></small></h2>
@@ -727,6 +728,9 @@ table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;f
       <input id="adminSearch" placeholder="Tafuta jina, barua pepe au simu" autocomplete="off">
       <div class="box" id="adminShops" style="margin-top:8px"></div>
     </div>
+    <div class="panel" id="adminWaitWrap" hidden><h2>Wamejisajili, hawajafungua biashara <small id="adminWaitCount"></small></h2>
+      <p class="note" style="margin:0 0 8px">Wamefungua akaunti lakini bado hawajajaza "Fungua biashara". Wakijaza, wataonekana juu kwenye Biashara zote.</p>
+      <div class="box" id="adminWait"></div></div>
     <p class="note" style="margin-bottom:30px">Bei na namba ya kulipia zinabadilishwa kwenye faili config.js.</p>
   </div>
 </div>
