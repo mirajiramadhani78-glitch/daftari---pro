@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ADMIN wa Daftari Pro: barua pepe hii (iwe sawa na adminEmail kwenye config.js), iliyothibitishwa
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email.lower() == 'mirajiramadhani78@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+    function signedIn() { return request.auth != null; }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function shop(d) { return get(/databases/$(database)/documents/maduka/$(d)).data; }
+    function isShopOwner(d) { return signedIn() && shop(d).mmiliki == request.auth.uid; }
+    function isMember(d) {
+      return signedIn() && (shop(d).mmiliki == request.auth.uid
+        || exists(/databases/$(database)/documents/maduka/$(d)/wanachama/$(myEmail())));
+    }
+    // kifurushi kinatumika (majaribio au kimelipiwa)
+    function isPaid(d) { return shop(d).hadi > request.time; }
+
+    // Kila biashara
+    match /maduka/{d} {
+      allow read: if signedIn() && (resource.data.mmiliki == request.auth.uid || isAdmin()
+        || exists(/databases/$(database)/documents/maduka/$(d)/wanachama/$(myEmail())));
+      // mtu yeyote aliyeingia anaweza kufungua biashara moja mpya yenye majaribio yasiyozidi siku 15
+      allow create: if signedIn()
+        && request.resource.data.mmiliki == request.auth.uid
+        && request.resource.data.mmilikiEmail == myEmail()
+        && request.resource.data.majaribio == true
+        && request.resource.data.hadi is timestamp
+        && request.resource.data.hadi < request.time + duration.value(15, 'd')
+        && request.resource.data.aina in ['duka', 'wakala'];
+      // mmiliki anabadilisha jina, simu, mahali na mitandao; muda wa kifurushi ni wa admin tu
+      allow update: if isAdmin() || (signedIn() && resource.data.mmiliki == request.auth.uid
+        && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['hadi', 'majaribio', 'mmiliki', 'mmilikiEmail', 'aina', 'imeundwa', 'imelipiwa']));
+      allow delete: if isAdmin();
+
+      // wafanyakazi walioruhusiwa (kwa barua pepe)
+      match /wanachama/{email} {
+        allow read: if isMember(d) || isAdmin();
+        allow write: if isShopOwner(d);
+      }
+      // majina ya watumiaji: kila mtu anaandika lake mwenyewe
+      match /watumiaji/{uid} {
+        allow read: if isMember(d) || isAdmin();
+        allow write: if isMember(d) && request.auth.uid == uid;
+      }
+      // data ya biashara: kusoma muda wote, kuandika kifurushi kikiwa hai tu
+      match /{col}/{id} {
+        allow read: if (isMember(d) || isAdmin())
+          && col in ['bidhaa', 'mauzo', 'manunuzi', 'matumizi', 'malipoMadeni', 'miamala', 'floti', 'hesabu'];
+        allow write: if isMember(d) && isPaid(d)
+          && col in ['bidhaa', 'mauzo', 'manunuzi', 'matumizi', 'malipoMadeni', 'miamala', 'floti', 'hesabu'];
+      }
+    }
+
+    // Kila mtumiaji: biashara anayoitumia
+    match /akaunti/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Mialiko ya wafanyakazi (kwa barua pepe)
+    match /mialiko/{email} {
+      allow read: if signedIn() && (email == myEmail() || resource.data.na == request.auth.uid || isAdmin());
+      allow create, update: if signedIn() && request.resource.data.na == request.auth.uid
+        && isShopOwner(request.resource.data.dukaId);
+      allow delete: if signedIn() && (email == myEmail() || resource.data.na == request.auth.uid);
+    }
+
+    // Taarifa za malipo: mteja anatuma, admin anathibitisha
+    match /malipo/{id} {
+      allow read: if isAdmin() || (signedIn() && resource.data.na == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.na == request.auth.uid
+        && request.resource.data.hali == 'inasubiri'
+        && isMember(request.resource.data.dukaId);
+      allow update, delete: if isAdmin();
+    }
+  }
+}

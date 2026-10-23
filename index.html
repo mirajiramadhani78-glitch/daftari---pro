@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="sw">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Daftari Pro</title>
+<meta name="theme-color" content="#1c6a3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Daftari Pro">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+
+/* Layout: ledger in one column (max 720px); period bar on top, views in the middle, tab bar fixed at the bottom */
+:root{
+  --bg:#ecefe8; --surface:#fbfcf8; --sunk:#e2e7df; --ink:#15201a; --muted:#56655b; --line:#cfd8cd;
+  --accent:#1c6a3a; --accent-ink:#ffffff; --accent-soft:#d8eadc;
+  --maize:#9c6300; --maize-soft:#f5e5c3; --bad:#b42318; --bad-soft:#f9e1dd;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Segoe UI",system-ui,-apple-system,sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1511; --surface:#16201a; --sunk:#1d2a22; --ink:#e4ece6; --muted:#97a99c; --line:#2a3a30;
+  --accent:#5fc486; --accent-ink:#0b1a10; --accent-soft:#1d3a27;
+  --maize:#e3ab45; --maize-soft:#3a2d12; --bad:#f2796c; --bad-soft:#3d1f1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1511; --surface:#16201a; --sunk:#1d2a22; --ink:#e4ece6; --muted:#97a99c; --line:#2a3a30;
+  --accent:#5fc486; --accent-ink:#0b1a10; --accent-soft:#1d3a27;
+  --maize:#e3ab45; --maize-soft:#3a2d12; --bad:#f2796c; --bad-soft:#3d1f1b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:720px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+.num,.money,td,.kpi b{font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-block:20px 14px;flex-wrap:wrap}
+.eyebrow{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.top h1{font-size:clamp(24px,6vw,32px);font-weight:700}
+.rename{display:flex;gap:8px;flex-wrap:wrap}
+.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted)}
+.ghost:hover{border-color:var(--muted);color:var(--ink)}
+.headbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.headbtns .btn{padding:8px 14px;border-radius:999px;font-size:14px}
+.actgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.act{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-width:0;padding:16px 6px 14px;border-radius:var(--r);
+  background:var(--surface);border:1px solid var(--line);font-family:var(--f-display);font-weight:700;font-size:15px;color:var(--ink);text-align:center}
+.act svg{width:34px;height:34px;stroke:var(--accent);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.act:hover{border-color:var(--accent);background:var(--accent-soft)}
+.act:active{transform:translateY(1px)}
+.statrow b small{font-size:11px;color:var(--muted);font-weight:600;margin-right:2px}
+.preview{white-space:pre-wrap;overflow-wrap:anywhere;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;line-height:1.5;padding:14px;margin:0;max-height:60vh;overflow:auto;user-select:text;-webkit-user-select:text}
+.note{font-size:13px;color:var(--muted);margin:8px 0 0}
+.banner{background:var(--maize-soft);color:var(--ink);border-radius:var(--r);padding:10px 12px;font-size:13.5px;margin-bottom:12px}
+
+.periods{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.range{color:var(--muted);font-size:13px;margin:0 0 14px}
+
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.kpi span{font-size:12.5px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.kpi b{font-family:var(--f-display);font-size:clamp(19px,5.4vw,26px);font-weight:700;overflow-wrap:anywhere}
+.kpi b small{font-family:var(--f-body);font-size:12px;font-weight:600;color:var(--muted);margin-right:3px}
+.kpi em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.kpi.debt b{color:var(--maize)}
+.kpi.net{grid-column:1/-1;background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.kpi.net span,.kpi.net em,.kpi.net b small{color:inherit;opacity:.85}
+.kpi.net b{font-size:clamp(26px,8vw,36px)}
+.kpi.net.loss{background:var(--bad);border-color:var(--bad);color:#fff}
+
+.panel{margin-top:18px}
+.panel h2{font-size:18px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.panel h2 small{font-family:var(--f-body);font-size:13px;color:var(--muted);font-weight:500}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.empty{padding:18px 16px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.statrow{display:flex;gap:18px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}
+.statrow div{display:flex;flex-direction:column}
+.statrow span{font-size:12px;color:var(--muted)}
+.statrow b{font-size:17px;font-variant-numeric:tabular-nums}
+.grouphead{padding:8px 14px;border-bottom:1px solid var(--line);border-top:1px solid var(--line);background:var(--sunk)}
+.box > .grouphead:first-child{border-top:0;border-radius:var(--r) var(--r) 0 0}
+
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line)}
+.rows li:first-child{border-top:0}
+.rows .main{flex:1;min-width:0}
+.rows .t{font-weight:600;overflow-wrap:anywhere}
+.rows .s{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.rows .end{text-align:right;flex-shrink:0;font-variant-numeric:tabular-nums}
+.rows li.tap{cursor:pointer}
+.rows li.tap:hover{background:var(--sunk)}
+.bar{height:5px;background:var(--sunk);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--maize);border-radius:3px}
+.bar.paid i{background:var(--accent)}
+
+.pill{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.02em;vertical-align:1px}
+.pill.low{background:var(--maize-soft);color:var(--maize)}
+.pill.out{background:var(--bad-soft);color:var(--bad)}
+.pill.ok{background:var(--accent-soft);color:var(--accent)}
+.pos{color:var(--accent)} .neg{color:var(--bad)} .owe{color:var(--maize)}
+
+form.box{padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field.full{grid-column:1/-1}
+label{font-size:12.5px;font-weight:600;color:var(--muted)}
+input,select{width:100%;min-width:0;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-size:16px}
+input:focus,select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.check{grid-column:1/-1;display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink);font-weight:500}
+.check input{width:auto}
+.hint{grid-column:1/-1;font-size:13px;color:var(--muted);background:var(--sunk);border-radius:8px;padding:9px 11px;margin:0}
+.hint b{color:var(--ink)}
+.total{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
+.total b{font-family:var(--f-display);font-size:22px;font-variant-numeric:tabular-nums}
+.total .s{font-size:13px;color:var(--muted)}
+.err{grid-column:1/-1;color:var(--bad);font-size:13.5px;margin:0}
+.actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:8px;padding:11px 18px;font-weight:600;background:var(--accent);color:var(--accent-ink)}
+.btn.alt{background:var(--sunk);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.mini{border:1px solid var(--line);background:none;border-radius:6px;padding:4px 9px;font-size:12.5px;color:var(--muted)}
+.mini:hover{color:var(--ink);border-color:var(--muted)}
+.mini[data-armed]{background:var(--bad);color:#fff;border-color:var(--bad)}
+.stock{font-family:var(--f-display);font-size:21px;font-weight:700;line-height:1.1}
+.stock small{display:block;font-family:var(--f-body);font-size:11.5px;color:var(--muted);font-weight:500;margin-top:3px}
+.prodbtns{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.sec-title{font-size:20px;margin:4px 0 12px}
+.subform{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;border-radius:8px;background:var(--maize-soft)}
+.subform label{color:var(--ink)}
+.back{background:none;border:0;color:var(--accent);font-weight:600;padding:0;margin-bottom:10px}
+.dhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.dhead .big{font-family:var(--f-display);font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+nav.tabs .in{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
+nav.tabs button{background:none;border:0;padding:9px 0 11px;font-size:11.5px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;border-top:3px solid transparent;min-width:0}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--accent);border-top-color:var(--accent)}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:500;z-index:9;max-width:calc(100% - 32px);text-align:center}
+.toast.bad{background:var(--bad);color:#fff}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease}@keyframes up{from{opacity:0;translate:0 8px}}}
+@media (max-width:380px){form.box,.subform{grid-template-columns:1fr}}
+
+/* ---- standalone app additions ---- */
+html{-webkit-text-size-adjust:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font-size:15px;-webkit-tap-highlight-color:transparent}
+.sync{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.sync[data-state="offline"]{background:var(--maize-soft);color:var(--maize)}
+.sync[data-state="pending"]{background:var(--maize-soft);color:var(--maize)}
+.gate{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;
+  padding:calc(env(safe-area-inset-top,0px) + 40px) max(16px,env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px) + 24px) max(16px,env(safe-area-inset-left,0px))}
+.gatebox{max-width:400px;margin:0 auto}
+.gatetitle{font-size:clamp(26px,8vw,34px);margin:4px 0 6px}
+.gateform{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.gatelinks{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:6px 0}
+.box.empty .s{font-size:13px;color:var(--muted)}
+/* base rules the Claude page wrapper used to supply */
+[hidden]{display:none!important}
+img{max-width:100%}
+.gatelang{display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+/* on-screen report, same sheet as the PDF */
+.rep{display:flex;flex-direction:column;gap:12px}
+.rephead{background:var(--accent);color:var(--accent-ink);border-radius:var(--r);padding:14px}
+.rephead .eyebrow,.rephead .s{color:inherit;opacity:.85}
+.rephead h3{font-size:17px;margin-top:4px}
+.reptiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.reptiles .kpi b{font-size:19px}
+.rep .note{margin:0}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table.sheet{border-collapse:collapse;width:100%;min-width:560px;font-size:13px;font-variant-numeric:tabular-nums}
+.sheet th,.sheet td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.sheet td:first-child{white-space:normal;min-width:120px}
+.sheet thead th{background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:12px}
+.sheet .n{text-align:right}
+.sheet tr.grp td{background:var(--accent-soft);color:var(--accent);font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.04em}
+.sheet tr.sub td{background:var(--sunk);font-weight:700}
+.sheet tfoot td{background:var(--accent);color:var(--accent-ink);font-weight:700;border-bottom:0}
+.repsec{font-size:16px;margin-top:4px}
+.btn.danger{background:var(--bad);color:#fff}
+
+/* ---- Daftari Pro ---- */
+.brand{display:flex;align-items:center;gap:6px}
+.logo{width:22px;height:22px;flex-shrink:0}
+.gatebrand{display:flex;align-items:center;gap:10px;margin-top:4px}
+.gatebrand .logo{width:48px;height:48px}
+.gatebrand .gatetitle{margin:0}
+#adminPane{z-index:60;padding-top:calc(env(safe-area-inset-top,0px) + 4px)}
+#adminPane .wrap{max-width:900px}
+.adminrow .btns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;margin-top:6px}
+.pill.trial{background:var(--maize-soft);color:var(--maize)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;grid-column:1/-1}
+.seg button{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 8px;font-weight:700;font-family:var(--f-display);font-size:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seg button small{font-family:var(--f-body);font-weight:500;font-size:12px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg button[aria-pressed="true"] small{color:inherit;opacity:.85}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.netgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.net{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.net span{font-size:12.5px;color:var(--muted);font-weight:600}
+.net b{font-family:var(--f-display);font-size:19px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.net em{font-style:normal;font-size:12px;color:var(--muted)}
+.net.cash{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.net.cash span,.net.cash em{color:inherit;opacity:.85}
+.net.low b{color:var(--bad)}
+.checks{display:flex;flex-wrap:wrap;gap:8px 16px}
+.checks label{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--ink);font-weight:500}
+.checks input{width:auto}
+.net b small{font-family:var(--f-body);font-size:12px;font-weight:600;color:inherit;opacity:.7;margin-right:3px}
+.adminrow{flex-wrap:wrap}
+.adminrow .end{flex-basis:100%;text-align:left}
+.adminrow .btns{justify-content:flex-start}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="dukaApp" hidden>
+  <header class="top">
+    <div>
+      <div class="eyebrow brand"><svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><path d="M57 34 C44 26 28 24 12 28 V96 C28 92 44 94 57 102 Z" fill="var(--accent)"/><path d="M63 34 C76 26 92 24 108 28 V96 C92 92 76 94 63 102 Z" fill="#E5A50A"/><rect x="22" y="46" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="60" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="74" width="18" height="5" rx="2.5" fill="var(--surface)"/><path d="M75 64 L83 72 L97 55" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Daftari Pro</div>
+      <h1 id="shopName" translate="no">Duka langu</h1>
+    </div>
+    <div class="headbtns">
+      <span class="sync" id="syncBadge" data-state="ok">Mtandaoni</span>
+      <button class="ghost" type="button" data-lang-btn translate="no">English</button>
+      <button class="ghost adminBtn" type="button" hidden>Admin</button>
+      <button class="ghost" id="settingsBtn" type="button">Mipangilio</button>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+  <div class="banner subBanner" hidden></div>
+
+  <div id="periodBar">
+    <div class="periods" id="periods">
+      <button class="chip" data-p="leo" aria-pressed="false" type="button">Leo</button>
+      <button class="chip" data-p="wiki" aria-pressed="false" type="button">Siku 7</button>
+      <button class="chip" data-p="mwezi" aria-pressed="true" type="button">Mwezi huu</button>
+      <button class="chip" data-p="mwaka" aria-pressed="false" type="button">Mwaka huu</button>
+      <button class="chip" data-p="yote" aria-pressed="false" type="button">Yote</button>
+    </div>
+    <p class="range" id="rangeLabel"></p>
+  </div>
+
+  <!-- MUHTASARI -->
+  <section class="view" id="v-muhtasari">
+    <div class="kpis">
+      <div class="kpi"><span>Jumla ya mauzo</span><b id="kMauzo"><small>TSh</small>0</b><em id="kMauzoSub">—</em></div>
+      <div class="kpi"><span>Jumla ya fedha taslimu</span><b id="kCash"><small>TSh</small>0</b><em id="kCashSub">Pesa iliyopokelewa</em></div>
+      <div class="kpi net" id="kNetBox"><span>Faida</span><b id="kNet"><small>TSh</small>0</b><em id="kNetSub">Mauzo − gharama ya bidhaa − matumizi</em></div>
+    </div>
+
+    <div class="actgrid">
+      <button type="button" class="act" data-act="pokea"><svg viewBox="0 0 24 24"><path d="M12 3v8M8.5 7.5 12 11l3.5-3.5"/><path d="M3 12l9 4 9-4M3 12v6l9 4 9-4v-6"/></svg>Pokea stock</button>
+      <button type="button" class="act" data-act="uza"><svg viewBox="0 0 24 24"><path d="M3 12l9 4 9-4M3 12v6l9 4 9-4v-6"/><path d="M12 11V3M8.5 6.5 12 3l3.5 3.5"/></svg>Uza</button>
+      <button type="button" class="act" data-act="ripoti"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 17v-3M12 17v-6M15 17v-4"/></svg>Ripoti</button>
+    </div>
+
+    <div class="box">
+      <div class="statrow" style="border-bottom:0">
+        <div><span>Faida ghafi</span><b id="kGhafi">0</b><span id="kGhafiSub"></span></div>
+        <div><span>Matumizi</span><b id="kMatumizi">0</b><span id="kMatumiziSub"></span></div>
+        <div id="kRuzWrap" hidden><span>Ruzuku ya mbolea</span><b id="kRuz">0</b><span id="kRuzSub"></span></div>
+        <div><span>Madeni yanayodaiwa</span><b id="kDeni" class="owe">0</b><span id="kDeniSub"></span></div>
+        <div><span>Mzigo ulionunuliwa</span><b id="kMzigo">0</b><span>mtaji ulioingia stoo</span></div>
+      </div>
+    </div>
+
+    <div class="panel" id="sellerPanel" hidden>
+      <h2>Mauzo kwa muuzaji <small>kipindi hiki</small></h2>
+      <div class="box" id="sellerList"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Hali ya stoo <small>sasa hivi</small></h2>
+      <div class="box" id="stooSummary"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Bidhaa zinazoleta faida <small>kipindi hiki</small></h2>
+      <div class="box" id="topList"></div>
+    </div>
+  </section>
+
+  <!-- UZA -->
+  <section class="view" id="v-uza" hidden>
+    <h2 class="sec-title">Rekodi mauzo</h2>
+    <form class="box" id="saleForm" novalidate>
+      <div class="field full"><label for="s-bidhaa">Bidhaa</label><select id="s-bidhaa"></select></div>
+      <p class="hint" id="s-info" hidden></p>
+      <div class="field full"><label for="s-aina">Aina ya mauzo</label>
+        <select id="s-aina"><option value="Rejareja" id="s-ainaR">Rejareja · kwa vipande (pcs)</option><option value="Jumla" id="s-ainaJ">Jumla · kwa katoni (ctn)</option></select></div>
+      <div class="field"><label for="s-idadi" id="s-idadiL">Idadi (pcs)</label><input id="s-idadi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="s-bei" id="s-beiL">Bei kwa kipande (TSh)</label><input id="s-bei" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="s-malipo">Malipo</label>
+        <select id="s-malipo"><option value="Taslimu">Taslimu</option><option value="Simu">Simu (M-Pesa, Mixx, Airtel)</option><option value="Benki">Benki</option><option value="Mkopo">Mkopo</option></select></div>
+      <div class="field"><label for="s-tarehe">Tarehe</label><input id="s-tarehe" type="date"></div>
+      <div class="field full" id="s-mtejaWrap"><label for="s-mteja">Mteja (si lazima)</label><input id="s-mteja" maxlength="80" list="customers" placeholder="Jina la mteja" autocomplete="off"></div>
+      <div class="subform" id="s-credit" hidden>
+        <div class="field"><label for="s-simu">Simu ya mteja</label><input id="s-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
+        <div class="field"><label for="s-lipa">Amelipa sasa (TSh)</label><input id="s-lipa" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      </div>
+      <div class="total"><span>Jumla <span id="s-faida" class="s"></span></span><b id="s-jumla">TSh 0</b></div>
+      <p class="err" id="s-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit" id="s-submit">Rekodi mauzo</button></div>
+    </form>
+    <div class="panel">
+      <h2>Mauzo ya leo <small id="todayTotal"></small></h2>
+      <div class="box" id="todaySales"></div>
+    </div>
+  </section>
+
+  <!-- STOO -->
+  <section class="view" id="v-stoo" hidden>
+    <h2 class="sec-title">Stoo ya bidhaa</h2>
+    <div class="toolbar">
+      <button class="btn" type="button" id="openProduct">Ongeza bidhaa mpya</button>
+      <button class="btn alt" type="button" id="openPurchase">Pokea mzigo</button>
+    </div>
+
+    <form class="box" id="productForm" hidden novalidate>
+      <input type="hidden" id="p-id">
+      <div class="field full"><label for="p-jina">Jina la bidhaa</label><input id="p-jina" maxlength="80" placeholder="Mfano: Sukari, Coca-Cola, DAP"></div>
+      <div class="field"><label for="p-kundi">Kundi</label>
+        <input id="p-kundi" maxlength="40" list="kundiList" placeholder="Mfano: Vinywaji" autocomplete="off"></div>
+      <div class="field"><label for="p-kipimo">Kipimo cha kipande</label><input id="p-kipimo" maxlength="30" placeholder="Mfano: 2kg, 50kg, 1 lita"></div>
+      <div class="field"><label for="p-kubwa">Inahifadhiwa / inanunuliwa kwa</label>
+        <select id="p-kubwa"><option value="Katoni">Katoni (ctn)</option><option value="Mfuko">Mfuko (bag)</option><option value="Boksi">Boksi</option><option value="Dumu">Dumu</option><option value="Bando">Bando</option></select></div>
+      <div class="field"><label for="p-ndogo">Inauzwa rejareja kwa</label>
+        <select id="p-ndogo"><option value="pcs">Kipande (pcs)</option><option value="kg">Kilo (kg)</option><option value="lita">Lita</option><option value="pakiti">Pakiti</option><option value="chupa">Chupa</option></select></div>
+      <div class="field"><label for="p-n" id="p-nL">Pcs kwenye katoni 1</label><input id="p-n" type="number" inputmode="numeric" min="1" step="any" placeholder="Mfano: 10"></div>
+      <div class="field"><label for="p-nunua" id="p-nunuaL">Bei ya kununua kwa katoni</label><input id="p-nunua" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="p-uza" id="p-uzaL">Bei ya rejareja (kwa kipande)</label><input id="p-uza" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="p-jumla" id="p-jumlaL">Bei ya jumla (kwa katoni)</label><input id="p-jumla" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <label class="check" id="p-ruzWrap"><input type="checkbox" id="p-ruz"> Mbolea ya ruzuku ya serikali</label>
+      <div class="field full" id="p-ruzField" hidden><label for="p-ruzMfuko" id="p-ruzMfukoL">Ruzuku ya serikali kwa mfuko (TSh)</label><input id="p-ruzMfuko" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field full"><label for="p-chini" id="p-chiniL">Nionye stoo ikifika (ctn)</label><input id="p-chini" type="number" inputmode="decimal" min="0" step="any" placeholder="2"></div>
+      <div class="field"><label for="p-ctn" id="p-ctnL">Stoo iliyopo: katoni</label><input id="p-ctn" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+      <div class="field"><label for="p-pcs" id="p-pcsL">na vipande vya ziada</label><input id="p-pcs" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <p class="hint" id="p-calc">Weka vipande kwa katoni na bei kuona gharama na faida kwa kipande.</p>
+      <p class="hint" id="p-hint" hidden>Ukibadilisha stoo iliyopo, itahesabiwa upya kuanzia hapo pamoja na mzigo na mauzo yaliyorekodiwa.</p>
+      <p class="err" id="p-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit" id="p-submit">Hifadhi bidhaa</button><button class="btn alt" type="button" id="p-cancel">Funga</button></div>
+    </form>
+
+    <form class="box" id="purchaseForm" hidden novalidate>
+      <div class="field full"><label for="m-bidhaa">Bidhaa</label><select id="m-bidhaa"></select></div>
+      <p class="hint" id="m-info" hidden></p>
+      <div class="field"><label for="m-ctn" id="m-ctnL">Katoni zilizopokelewa</label><input id="m-ctn" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+      <div class="field"><label for="m-n" id="m-nL">Pcs kwenye katoni 1 (mzigo huu)</label><input id="m-n" type="number" inputmode="numeric" min="1" step="any" placeholder="Mfano: 12"></div>
+      <div class="field"><label for="m-pcs" id="m-pcsL">Pcs za ziada nje ya katoni</label><input id="m-pcs" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="m-bei" id="m-beiL">Bei ya kununua kwa katoni</label><input id="m-bei" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="m-tarehe">Tarehe</label><input id="m-tarehe" type="date"></div>
+      <div class="field"><label for="m-msambazaji">Msambazaji (si lazima)</label><input id="m-msambazaji" maxlength="80" placeholder="Mfano: Bakhresa, Yara"></div>
+      <label class="check"><input type="checkbox" id="m-update" checked> <span id="m-updateL">Tumia bei na idadi kwa kifungashio za mzigo huu kama za kawaida za bidhaa hii</span></label>
+      <div class="subform" id="m-priceBox" hidden>
+        <p class="hint" id="m-priceHint" style="background:none;padding:0"></p>
+        <div class="field"><label for="m-uzaPc" id="m-uzaPcL">Bei mpya ya rejareja</label><input id="m-uzaPc" type="number" inputmode="numeric" min="0" step="any"></div>
+        <div class="field"><label for="m-uzaCtn" id="m-uzaCtnL">Bei mpya ya jumla</label><input id="m-uzaCtn" type="number" inputmode="numeric" min="0" step="any"></div>
+        <p class="hint" id="m-gain" style="background:none;padding:0"></p>
+      </div>
+      <div class="total"><span>Gharama ya mzigo <span id="m-pcsTot" class="s"></span></span><b id="m-jumla">TSh 0</b></div>
+      <p class="err" id="m-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit">Ingiza stoo</button><button class="btn alt" type="button" id="m-cancel">Funga</button></div>
+    </form>
+
+    <div class="panel" style="margin-top:14px">
+      <div class="box" id="productList"></div>
+    </div>
+  </section>
+
+  <!-- MADENI -->
+  <section class="view" id="v-madeni" hidden>
+    <div id="debtListView">
+      <h2 class="sec-title">Madeni ya wateja</h2>
+      <div class="box" id="debtSummary" style="margin-bottom:12px"></div>
+      <div class="toolbar">
+        <button class="btn alt" type="button" id="openOldDebt">Ongeza deni la zamani</button>
+      </div>
+      <form class="box" id="oldDebtForm" hidden novalidate style="margin-bottom:12px">
+        <div class="field"><label for="o-mteja">Mteja</label><input id="o-mteja" maxlength="80" list="customers" placeholder="Jina la mteja" autocomplete="off"></div>
+        <div class="field"><label for="o-simu">Simu (si lazima)</label><input id="o-simu" type="tel" inputmode="tel" maxlength="20"></div>
+        <div class="field"><label for="o-kiasi">Kiasi anachodaiwa (TSh)</label><input id="o-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+        <div class="field"><label for="o-tarehe">Tarehe alipokopa</label><input id="o-tarehe" type="date"></div>
+        <div class="field full"><label for="o-maelezo">Maelezo (si lazima)</label><input id="o-maelezo" maxlength="120" placeholder="Mfano: Mzigo wa mwezi uliopita"></div>
+        <p class="hint">Tumia hii kwa madeni yaliyokuwepo kabla ya kuanza kutumia daftari hili. Mikopo mipya inarekodiwa yenyewe ukichagua "Mkopo" kwenye Uza.</p>
+        <p class="err" id="o-err" hidden></p>
+        <div class="actions"><button class="btn" type="submit">Hifadhi deni</button><button class="btn alt" type="button" id="o-cancel">Funga</button></div>
+      </form>
+      <div class="periods" id="debtFilter" style="margin-bottom:12px">
+        <button class="chip" data-d="wanadaiwa" aria-pressed="true" type="button">Wanadaiwa</button>
+        <button class="chip" data-d="wamemaliza" aria-pressed="false" type="button">Wamemaliza</button>
+        <button class="chip" data-d="wote" aria-pressed="false" type="button">Wote</button>
+      </div>
+      <div class="box" id="debtList"></div>
+    </div>
+
+    <div id="debtDetailView" hidden>
+      <button class="back" type="button" id="debtBack">← Madeni yote</button>
+      <div class="dhead">
+        <div><div class="eyebrow" id="dSimu">Mteja</div><h2 class="sec-title" style="margin:2px 0 0" id="dJina"></h2></div>
+        <div style="text-align:right"><div class="eyebrow">Salio la deni</div><div class="big" id="dSalio"></div></div>
+      </div>
+      <div class="box" id="dStats" style="margin-bottom:12px"></div>
+      <form class="box" id="payForm" novalidate>
+        <div class="field"><label for="d-kiasi">Kiasi alicholipa (TSh)</label><input id="d-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+        <div class="field"><label for="d-njia">Njia ya malipo</label><select id="d-njia"><option value="Taslimu">Taslimu</option><option value="Simu">Simu</option><option value="Benki">Benki</option></select></div>
+        <div class="field"><label for="d-tarehe">Tarehe</label><input id="d-tarehe" type="date"></div>
+        <div class="field"><label for="d-maelezo">Maelezo (si lazima)</label><input id="d-maelezo" maxlength="120"></div>
+        <p class="err" id="d-err" hidden></p>
+        <div class="actions"><button class="btn" type="submit" id="d-submit">Pokea malipo</button><button class="btn alt" type="button" id="d-all">Amelipa deni lote</button></div>
+      </form>
+      <div class="panel">
+        <h2>Historia ya mkopo</h2>
+        <div class="box" id="dHistory"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIPOTI -->
+  <section class="view" id="v-ripoti" hidden>
+    <button class="back" type="button" data-go="muhtasari">← Nyumbani</button>
+    <h2 class="sec-title">Ripoti</h2>
+    <div class="periods" id="rType" style="margin-bottom:8px">
+      <button class="chip" data-r="kamili" aria-pressed="true" type="button">Ripoti kamili</button>
+      <button class="chip" data-r="mauzo" aria-pressed="false" type="button">Mauzo tu</button>
+      <button class="chip" data-r="stoo" aria-pressed="false" type="button">Stoo tu</button>
+    </div>
+    <div class="periods" id="rRange" style="margin-bottom:12px">
+      <button class="chip" data-rr="leo" aria-pressed="true" type="button">Leo</button>
+      <button class="chip" data-rr="wiki" aria-pressed="false" type="button">Wiki hii</button>
+      <button class="chip" data-rr="wikiIliyopita" aria-pressed="false" type="button">Wiki iliyopita</button>
+      <button class="chip" data-rr="mwezi" aria-pressed="false" type="button">Mwezi huu</button>
+      <button class="chip" data-rr="mweziUliopita" aria-pressed="false" type="button">Mwezi uliopita</button>
+      <button class="chip" data-rr="yote" aria-pressed="false" type="button">Tangu mwanzo</button>
+      <button class="chip" data-rr="custom" aria-pressed="false" type="button">Chagua tarehe</button>
+    </div>
+    <div class="eyebrow" style="margin-bottom:6px">Kundi la bidhaa</div>
+    <div class="periods" id="rKundi" style="margin-bottom:12px"></div>
+    <div id="rSellerWrap" hidden>
+      <div class="eyebrow" style="margin-bottom:6px">Muuzaji</div>
+      <div class="periods" id="rSeller" style="margin-bottom:12px"></div>
+    </div>
+    <form class="box" id="reportForm" novalidate>
+      <div class="field" id="r-fromWrap"><label for="r-from">Kuanzia tarehe</label><input id="r-from" type="date"></div>
+      <div class="field" id="r-toWrap"><label for="r-to">Hadi tarehe</label><input id="r-to" type="date"></div>
+      <label class="check"><input type="checkbox" id="r-faida" checked> Onyesha faida kwenye ripoti</label>
+      <div class="actions">
+        <button class="btn" type="button" id="r-pdf">Tuma PDF</button>
+        <button class="btn alt" type="button" id="r-excel">Pakua Excel</button>
+        <button class="btn alt" type="button" id="r-copy">Nakili maandishi</button>
+      </div>
+    </form>
+    <p class="note" id="r-note">Mauzo ya siku moja: weka tarehe ileile pande zote mbili.</p>
+    <div class="panel">
+      <div id="r-preview"></div>
+    </div>
+  </section>
+
+  <!-- MIPANGILIO -->
+  <section class="view" id="v-mipangilio" hidden>
+    <button class="back" type="button" data-go="muhtasari">← Nyumbani</button>
+    <h2 class="sec-title">Mipangilio</h2>
+
+    <div class="panel" style="margin-top:0">
+      <h2>Akaunti yako</h2>
+      <form class="box" id="meForm" novalidate>
+        <div class="field"><label for="me-jina">Jina lako</label><input id="me-jina" maxlength="60" autocomplete="name"></div>
+        <div class="field"><label>Barua pepe</label><input id="me-email" disabled></div>
+        <p class="hint" id="me-role"></p>
+        <div class="actions"><button class="btn" type="submit">Hifadhi jina</button><button class="btn alt" type="button" id="signOutBtn">Toka</button></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Kifurushi <small id="subBadge"></small></h2>
+      <div class="box empty" style="color:var(--ink)" id="subInfo"></div>
+      <div id="subPay" style="margin-top:10px">
+        <form class="box" id="subForm" novalidate>
+          <div class="hint" id="subHow"></div>
+          <div class="field"><label for="sb-miezi">Muda</label><select id="sb-miezi"><option value="1">Mwezi 1</option><option value="3">Miezi 3</option><option value="6">Miezi 6</option><option value="12">Mwaka 1</option></select></div>
+          <div class="field"><label for="sb-kiasi">Kiasi cha kulipa</label><input id="sb-kiasi" disabled></div>
+          <div class="field"><label for="sb-msimbo">Msimbo wa muamala</label><input id="sb-msimbo" maxlength="30" autocapitalize="characters" autocomplete="off" placeholder="Mfano: QJK3ABC12X"></div>
+          <div class="field"><label for="sb-simu">Namba uliyolipia</label><input id="sb-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
+          <p class="err" id="sb-err" hidden></p>
+          <div class="actions"><button class="btn" type="submit" id="sb-submit">Tuma taarifa ya malipo</button></div>
+          <div class="field full" id="subPending"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Biashara</h2>
+      <form class="box" id="renameForm" novalidate>
+        <div class="field full"><label for="renameInput">Jina la biashara</label><input id="renameInput" maxlength="60"></div>
+        <div class="field"><label for="bizSimu">Simu ya biashara</label><input id="bizSimu" type="tel" inputmode="tel" maxlength="20"></div>
+        <div class="field"><label for="bizMahali">Mahali</label><input id="bizMahali" maxlength="60"></div>
+        <p class="hint" id="bizAina"></p>
+        <div class="actions"><button class="btn" type="submit">Hifadhi</button></div>
+      </form>
+    </div>
+
+    <div class="panel" id="mitandaoPanel" hidden>
+      <h2>Mitandao unayohudumia</h2>
+      <form class="box" id="mitandaoForm" novalidate>
+        <div class="field full" id="mitandaoList"></div>
+        <div class="field full"><label for="mtNew">Ongeza mtandao/benki nyingine</label><input id="mtNew" maxlength="30" placeholder="Mfano: Selcom, Equity"></div>
+        <div class="actions"><button class="btn" type="submit">Hifadhi mitandao</button></div>
+      </form>
+    </div>
+
+    <div class="panel" id="membersPanel" hidden>
+      <h2>Wanaoruhusiwa kutumia app <small>wewe tu unaona hapa</small></h2>
+      <div class="box" id="membersList"></div>
+      <form class="box" id="memberForm" novalidate style="margin-top:10px">
+        <div class="field full"><label for="mb-email">Barua pepe ya mfanyakazi</label><input id="mb-email" type="email" inputmode="email" autocomplete="off" placeholder="mfano: juma@gmail.com"></div>
+        <p class="hint">Ukimwongeza hapa, afungue Daftari Pro na abonyeze "Fungua akaunti" kwa barua pepe hiyohiyo. Ataingia moja kwa moja kwenye biashara yako.</p>
+        <p class="err" id="mb-err" hidden></p>
+        <div class="actions"><button class="btn" type="submit">Mruhusu</button></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Nakala ya data</h2>
+      <div class="box empty" style="color:var(--ink)">
+        <span>Pakua nakala ya data yote mara kwa mara na uiweke salama (mfano Google Drive au WhatsApp yako mwenyewe).</span>
+        <div class="actions"><button class="btn alt" type="button" id="backupBtn">Pakua nakala (JSON)</button></div>
+        <div id="importWrap" hidden>
+          <span class="s">Ingiza data kutoka faili la nakala, mfano data ya daftari la zamani.</span>
+          <div class="actions" style="margin-top:8px"><label class="btn alt" for="importFile" style="cursor:pointer">Ingiza data kutoka faili</label><input type="file" id="importFile" accept=".json,application/json" hidden></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="wipePanel" hidden>
+      <h2>Anza upya <small>wewe tu unaona hapa</small></h2>
+      <form class="box" id="wipeForm" novalidate>
+        <p class="hint" id="wipeHint">Inafuta mauzo, mizigo, matumizi na madeni yote, kwa mfano baada ya majaribio. Haiwezi kurudishwa. Pakua nakala kwanza kama unahitaji data hii.</p>
+        <label class="check" id="wipeBidhaaWrap"><input type="checkbox" id="wipeBidhaa"> Futa pia bidhaa zote (stoo itaanza tupu)</label>
+        <div class="field full"><label for="wipeConfirm">Andika FUTA kuthibitisha</label><input id="wipeConfirm" autocomplete="off" autocapitalize="characters"></div>
+        <p class="err" id="wipe-err" hidden></p>
+        <div class="actions"><button class="btn danger" type="submit" id="wipeBtn">Futa data</button></div>
+      </form>
+    </div>
+    <p class="note" id="appVersion"></p>
+  </section>
+
+  <!-- MATUMIZI -->
+  <section class="view" id="v-matumizi" hidden>
+    <form class="box" id="expenseForm" novalidate>
+      <div class="field"><label for="e-aina">Aina ya matumizi</label>
+        <select id="e-aina"><option>Kodi ya pango</option><option>Mishahara</option><option>Usafiri na ubebaji</option><option>Umeme na maji</option><option>Leseni na ushuru</option><option>Mawasiliano</option><option>Mengineyo</option></select></div>
+      <div class="field"><label for="e-kiasi">Kiasi (TSh)</label><input id="e-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="e-tarehe">Tarehe</label><input id="e-tarehe" type="date"></div>
+      <div class="field"><label for="e-maelezo">Maelezo (si lazima)</label><input id="e-maelezo" maxlength="120" placeholder="Mfano: Bodaboda kutoka ghala"></div>
+      <p class="err" id="e-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit">Rekodi matumizi</button></div>
+    </form>
+    <div class="panel">
+      <h2>Matumizi kwa aina <small id="expTotal"></small></h2>
+      <div class="box" id="expByType"></div>
+    </div>
+  </section>
+
+  <!-- HISTORIA -->
+  <section class="view" id="v-historia" hidden>
+    <div class="periods" id="histFilter" style="margin-bottom:12px">
+      <button class="chip" data-h="zote" aria-pressed="true" type="button">Zote</button>
+      <button class="chip" data-h="mauzo" aria-pressed="false" type="button">Mauzo</button>
+      <button class="chip" data-h="manunuzi" aria-pressed="false" type="button">Mzigo</button>
+      <button class="chip" data-h="madeni" aria-pressed="false" type="button">Madeni</button>
+      <button class="chip" data-h="matumizi" aria-pressed="false" type="button">Matumizi</button>
+    </div>
+    <div class="box" id="histList"></div>
+  </section>
+</div>
+
+<datalist id="customers"></datalist>
+<datalist id="kundiList"></datalist>
+
+<!-- LOGIN / SIGN-UP: covers the app until someone is signed in and allowed -->
+<div class="gate" id="gate">
+  <div class="gatebox">
+    <div class="gatelang"><div class="eyebrow">Hesabu za biashara yako</div><button class="linkbtn" type="button" data-lang-btn translate="no">English</button></div>
+    <div class="gatebrand"><svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><path d="M57 34 C44 26 28 24 12 28 V96 C28 92 44 94 57 102 Z" fill="var(--accent)"/><path d="M63 34 C76 26 92 24 108 28 V96 C92 92 76 94 63 102 Z" fill="#E5A50A"/><rect x="22" y="46" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="60" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="74" width="18" height="5" rx="2.5" fill="var(--surface)"/><path d="M75 64 L83 72 L97 55" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><h1 class="gatetitle" id="gateTitle" translate="no">Daftari Pro</h1></div>
+
+    <div id="gateLoading"><p class="note">Inafungua…</p></div>
+
+    <div id="gateConfig" hidden>
+      <p class="hint" style="margin:14px 0 0">App bado haijaunganishwa na Firebase. Fungua faili <b>config.js</b> uweke mipangilio ya Firebase kama maelekezo yanavyosema.</p>
+    </div>
+
+    <form id="loginForm" class="gateform" hidden novalidate>
+      <div class="field"><label for="li-email">Barua pepe</label><input id="li-email" type="email" inputmode="email" autocomplete="username"></div>
+      <div class="field"><label for="li-pass">Nenosiri</label><input id="li-pass" type="password" autocomplete="current-password"></div>
+      <p class="err" id="li-err" hidden></p>
+      <button class="btn" type="submit" id="li-submit">Ingia</button>
+      <div class="gatelinks"><button type="button" class="linkbtn" data-gate="signup">Fungua akaunti</button><button type="button" class="linkbtn" data-gate="reset">Umesahau nenosiri?</button></div>
+    </form>
+
+    <form id="signupForm" class="gateform" hidden novalidate>
+      <div class="field"><label for="su-jina">Jina lako</label><input id="su-jina" maxlength="60" autocomplete="name"></div>
+      <div class="field"><label for="su-email">Barua pepe</label><input id="su-email" type="email" inputmode="email" autocomplete="username"></div>
+      <div class="field"><label for="su-pass">Nenosiri (herufi 6 au zaidi)</label><input id="su-pass" type="password" autocomplete="new-password"></div>
+      <p class="err" id="su-err" hidden></p>
+      <button class="btn" type="submit" id="su-submit">Fungua akaunti</button>
+      <div class="gatelinks"><button type="button" class="linkbtn" data-gate="login">Nina akaunti tayari</button></div>
+    </form>
+
+    <form id="resetForm" class="gateform" hidden novalidate>
+      <div class="field"><label for="rs-email">Barua pepe ya akaunti yako</label><input id="rs-email" type="email" inputmode="email"></div>
+      <p class="hint" style="margin:0">Tutakutumia kiungo cha kuweka nenosiri jipya.</p>
+      <p class="err" id="rs-err" hidden></p>
+      <button class="btn" type="submit">Tuma kiungo</button>
+      <div class="gatelinks"><button type="button" class="linkbtn" data-gate="login">Rudi kuingia</button></div>
+    </form>
+
+    <div id="gateDenied" hidden>
+      <p class="hint" style="margin:14px 0">Umeingia kama <b id="deniedEmail"></b>, lakini huna ruhusa tena kwenye biashara hii. Mwambie mmiliki akuongeze kwenye Mipangilio → "Wanaoruhusiwa", kisha bonyeza "Jaribu tena".</p>
+      <div class="actions"><button class="btn" type="button" id="deniedRetry">Jaribu tena</button><button class="btn alt" type="button" id="deniedNew">Fungua biashara yangu</button><button class="btn alt" type="button" id="deniedOut">Toka</button></div>
+    </div>
+
+    <form id="setupForm" class="gateform" hidden novalidate>
+      <p class="hint" style="margin:0">Karibu! Fungua biashara yako. Utapata siku <b class="trialDays">14</b> za kujaribu bure, bila kulipa chochote.</p>
+      <div class="field"><label for="st-jina">Jina la biashara</label><input id="st-jina" maxlength="60" placeholder="Mfano: Juma General Store"></div>
+      <div class="field"><label for="st-aina">Aina ya biashara</label>
+        <select id="st-aina"><option value="duka">Duka (bidhaa, stoo, mauzo, madeni)</option><option value="pembejeo">Duka la pembejeo za kilimo</option><option value="wakala">Wakala wa pesa (M-Pesa, Mixx, Airtel, benki)</option></select></div>
+      <div class="field"><label for="st-simu">Namba ya simu</label><input id="st-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
+      <div class="field"><label for="st-mahali">Mahali (mtaa, mji)</label><input id="st-mahali" maxlength="60" placeholder="Mfano: Kariakoo, Dar es Salaam"></div>
+      <p class="err" id="st-err" hidden></p>
+      <button class="btn" type="submit" id="st-submit">Fungua biashara</button>
+      <p class="note">Unafanya kazi kwenye biashara ya mtu mwingine? Mwambie mmiliki akuongeze kwa barua pepe <b class="meEmailT"></b>, kisha bonyeza "Angalia mwaliko".</p>
+      <div class="gatelinks"><button type="button" class="linkbtn" id="setupRetry">Angalia mwaliko</button><button type="button" class="linkbtn adminBtn" hidden>Admin</button><button type="button" class="linkbtn" id="setupOut">Toka</button></div>
+    </form>
+
+    <div id="gateInvite" hidden>
+      <p class="hint" style="margin:14px 0">Umealikwa kujiunga na <b id="inviteShop" translate="no"></b>. Ukijiunga utajaza na kuona data ya biashara hiyo.</p>
+      <div class="actions"><button class="btn" type="button" id="inviteJoin">Jiunge</button><button class="btn alt" type="button" id="inviteNo">Fungua biashara yangu badala yake</button></div>
+    </div>
+
+    <div id="gateLocked" hidden>
+      <p class="hint" id="lockMsg" style="margin:14px 0"></p>
+      <div id="lockPay"></div>
+      <div class="gatelinks" style="margin-top:12px"><button type="button" class="linkbtn" id="lockRetry">Angalia tena</button><button type="button" class="linkbtn adminBtn" hidden>Admin</button><button type="button" class="linkbtn" id="lockOut">Toka</button></div>
+    </div>
+  </div>
+</div>
+
+<nav class="tabs" id="dukaTabs" aria-label="Sehemu" hidden>
+  <div class="in">
+    <button type="button" data-tab="muhtasari" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg>Nyumbani</button>
+    <button type="button" data-tab="uza"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg>Uza</button>
+    <button type="button" data-tab="stoo"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v11H3zM8 19v-6h8v6"/></svg>Stoo</button>
+    <button type="button" data-tab="madeni"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M17 8h4M19 6v4"/></svg>Madeni</button>
+    <button type="button" data-tab="matumizi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>Matumizi</button>
+    <button type="button" data-tab="historia"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>Historia</button>
+  </div>
+</nav>
+<!-- ADMIN: only the app owner sees this -->
+<div class="gate" id="adminPane" hidden>
+  <div class="wrap">
+    <header class="top">
+      <div><div class="eyebrow brand"><svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><path d="M57 34 C44 26 28 24 12 28 V96 C28 92 44 94 57 102 Z" fill="var(--accent)"/><path d="M63 34 C76 26 92 24 108 28 V96 C92 92 76 94 63 102 Z" fill="#E5A50A"/><rect x="22" y="46" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="60" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="74" width="18" height="5" rx="2.5" fill="var(--surface)"/><path d="M75 64 L83 72 L97 55" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Daftari Pro</div><h1>Admin</h1></div>
+      <div class="headbtns"><button class="ghost" type="button" id="adminClose">Funga</button></div>
+    </header>
+    <div class="hint" id="adminVerify" hidden style="margin-bottom:12px">Kabla ya kuwasha au kufunga biashara, thibitisha barua pepe yako. <button class="btn alt" type="button" id="adminVerifyBtn" style="margin-top:8px">Tuma barua ya kuthibitisha</button> <button class="btn alt" type="button" id="adminVerifyDone" style="margin-top:8px">Nimeshathibitisha</button></div>
+    <div class="kpis" id="adminKpis"></div>
+    <div class="panel"><h2>Malipo yanayosubiri <small id="adminPayCount"></small></h2><div class="box" id="adminPay"></div></div>
+    <div class="panel"><h2>Biashara zote <small id="adminCount"></small></h2>
+      <div class="periods" id="adminFilter" style="margin-bottom:8px">
+        <button class="chip" data-af="zote" aria-pressed="true" type="button">Zote</button>
+        <button class="chip" data-af="majaribio" aria-pressed="false" type="button">Majaribio</button>
+        <button class="chip" data-af="hai" aria-pressed="false" type="button">Wamelipa</button>
+        <button class="chip" data-af="karibu" aria-pressed="false" type="button">Zinaisha karibuni</button>
+        <button class="chip" data-af="zimefungwa" aria-pressed="false" type="button">Zimefungwa</button>
+      </div>
+      <input id="adminSearch" placeholder="Tafuta jina, barua pepe au simu" autocomplete="off">
+      <div class="box" id="adminShops" style="margin-top:8px"></div>
+    </div>
+    <p class="note" style="margin-bottom:30px">Bei na namba ya kulipia zinabadilishwa kwenye faili config.js.</p>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+
+<!-- WAKALA: mobile-money agent ledger (float per network + cash in hand) -->
+<div class="wrap" id="wakalaApp" hidden>
+  <header class="top">
+    <div>
+      <div class="eyebrow brand"><svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><path d="M57 34 C44 26 28 24 12 28 V96 C28 92 44 94 57 102 Z" fill="var(--accent)"/><path d="M63 34 C76 26 92 24 108 28 V96 C92 92 76 94 63 102 Z" fill="#E5A50A"/><rect x="22" y="46" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="60" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="74" width="18" height="5" rx="2.5" fill="var(--surface)"/><path d="M75 64 L83 72 L97 55" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>Daftari Pro · Wakala</div>
+      <h1 id="wShopName" translate="no">Wakala</h1>
+    </div>
+    <div class="headbtns">
+      <span class="sync" data-state="ok">Mtandaoni</span>
+      <button class="ghost" type="button" data-lang-btn translate="no">English</button>
+      <button class="ghost adminBtn" type="button" hidden>Admin</button>
+      <button class="ghost" id="wSettingsBtn" type="button">Mipangilio</button>
+    </div>
+  </header>
+  <div class="banner subBanner" hidden></div>
+
+  <!-- NYUMBANI -->
+  <section class="wview" id="w-nyumbani">
+    <div class="kpis">
+      <div class="kpi"><span>Pesa taslimu mkononi</span><b id="wkCash"><small>TSh</small>0</b><em>inavyotakiwa kuwepo sasa</em></div>
+      <div class="kpi"><span>Floti yote</span><b id="wkFloat"><small>TSh</small>0</b><em id="wkFloatSub">mitandao yote</em></div>
+      <div class="kpi net" id="wkNetBox"><span>Kamisheni ya leo</span><b id="wkKam"><small>TSh</small>0</b><em id="wkKamSub">—</em></div>
+    </div>
+    <div class="actgrid" id="wActs">
+      <button type="button" class="act" data-wact="weka"><svg viewBox="0 0 24 24"><path d="M12 20V8M7 13l5-5 5 5"/><path d="M4 4h16"/></svg>Kuweka</button>
+      <button type="button" class="act" data-wact="toa"><svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>Kutoa</button>
+      <button type="button" class="act" data-wact="ripoti"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 17v-3M12 17v-6M15 17v-4"/></svg>Ripoti</button>
+    </div>
+    <div class="panel">
+      <h2>Salio kwa mtandao <small>sasa hivi</small></h2>
+      <div class="netgrid" id="wNets"></div>
+    </div>
+    <div class="panel">
+      <h2>Leo <small id="wTodaySub"></small></h2>
+      <div class="box" id="wTodayStats"></div>
+    </div>
+    <div class="panel">
+      <h2>Miamala ya karibuni</h2>
+      <div class="box" id="wRecent"></div>
+    </div>
+  </section>
+
+  <!-- MUAMALA -->
+  <section class="wview" id="w-muamala" hidden>
+    <h2 class="sec-title">Rekodi muamala</h2>
+    <form class="box" id="txForm" novalidate>
+      <div class="seg" id="txAina">
+        <button type="button" data-aina="weka" aria-pressed="true">Kuweka<small>mteja anaweka pesa</small></button>
+        <button type="button" data-aina="toa" aria-pressed="false">Kutoa<small>mteja anatoa pesa</small></button>
+      </div>
+      <div class="field full"><label>Mtandao</label><div class="chips" id="txNets"></div></div>
+      <div class="field"><label for="tx-kiasi">Kiasi (TSh)</label><input id="tx-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="tx-kam">Kamisheni (si lazima)</label><input id="tx-kam" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="tx-simu">Simu ya mteja (si lazima)</label><input id="tx-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
+      <div class="field"><label for="tx-ref">Kumbukumbu / jina (si lazima)</label><input id="tx-ref" maxlength="60" placeholder="Msimbo au jina la mteja"></div>
+      <div class="field"><label for="tx-tarehe">Tarehe</label><input id="tx-tarehe" type="date"></div>
+      <p class="hint" id="tx-effect"></p>
+      <p class="err" id="tx-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit" id="tx-submit">Rekodi kuweka</button></div>
+    </form>
+    <div class="panel">
+      <h2>Miamala ya leo <small id="wTxToday"></small></h2>
+      <div class="box" id="wTxList"></div>
+    </div>
+  </section>
+
+  <!-- FLOTI -->
+  <section class="wview" id="w-floti" hidden>
+    <h2 class="sec-title">Floti na pesa taslimu</h2>
+    <div class="netgrid" id="wNets2" style="margin-bottom:12px"></div>
+    <form class="box" id="flForm" novalidate>
+      <div class="field full"><label for="fl-aina">Nini kimetokea?</label>
+        <select id="fl-aina">
+          <option value="anza">Salio la kuanzia (floti au pesa taslimu)</option>
+          <option value="nunua">Nimenunua floti kwa pesa taslimu (benki / super agent)</option>
+          <option value="uza">Nimeuza floti nikapata pesa taslimu</option>
+          <option value="kamisheni">Kamisheni imeingia kwenye floti</option>
+          <option value="mtaji">Nimeongeza pesa taslimu (mtaji)</option>
+          <option value="toa">Nimetoa pesa taslimu kwenye biashara</option>
+        </select></div>
+      <div class="field" id="fl-mtWrap"><label for="fl-mt">Mtandao</label><select id="fl-mt"></select></div>
+      <div class="field"><label for="fl-kiasi">Kiasi (TSh)</label><input id="fl-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="fl-tarehe">Tarehe</label><input id="fl-tarehe" type="date"></div>
+      <div class="field"><label for="fl-maelezo">Maelezo (si lazima)</label><input id="fl-maelezo" maxlength="120"></div>
+      <p class="hint" id="fl-effect"></p>
+      <p class="err" id="fl-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit">Hifadhi</button></div>
+    </form>
+    <div class="panel">
+      <h2>Mabadiliko ya floti</h2>
+      <div class="box" id="wFlList"></div>
+    </div>
+  </section>
+
+  <!-- MATUMIZI -->
+  <section class="wview" id="w-matumizi" hidden>
+    <h2 class="sec-title">Matumizi</h2>
+    <form class="box" id="wExpForm" novalidate>
+      <div class="field"><label for="we-aina">Aina</label>
+        <select id="we-aina"><option>Kodi ya pango</option><option>Mishahara</option><option>Usafiri</option><option>Umeme na maji</option><option>Leseni na ushuru</option><option>Vocha na mawasiliano</option><option>Mengineyo</option></select></div>
+      <div class="field"><label for="we-kiasi">Kiasi (TSh)</label><input id="we-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="we-tarehe">Tarehe</label><input id="we-tarehe" type="date"></div>
+      <div class="field"><label for="we-maelezo">Maelezo (si lazima)</label><input id="we-maelezo" maxlength="120"></div>
+      <p class="hint">Matumizi yanalipwa kwa pesa taslimu, hivyo yanapunguza pesa iliyopo mkononi.</p>
+      <p class="err" id="we-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit">Rekodi matumizi</button></div>
+    </form>
+    <div class="panel">
+      <h2>Matumizi ya mwezi huu <small id="wExpTotal"></small></h2>
+      <div class="box" id="wExpList"></div>
+    </div>
+  </section>
+
+  <!-- HESABU YA JIONI -->
+  <section class="wview" id="w-hesabu" hidden>
+    <h2 class="sec-title">Hesabu ya jioni</h2>
+    <form class="box" id="hsForm" novalidate>
+      <p class="hint">Hesabu pesa taslimu iliyopo na angalia salio la floti kwenye kila simu, kisha uandike hapa. App italinganisha na inavyotakiwa kuwa.</p>
+      <div class="field"><label for="hs-tarehe">Tarehe</label><input id="hs-tarehe" type="date"></div>
+      <div class="field"><label for="hs-cash">Pesa taslimu uliyohesabu</label><input id="hs-cash" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field full" id="hsNets" style="display:grid;grid-template-columns:1fr 1fr;gap:12px"></div>
+      <div class="field full"><label for="hs-maelezo">Maelezo (si lazima)</label><input id="hs-maelezo" maxlength="160"></div>
+      <div class="field full" id="hsCompare"></div>
+      <p class="err" id="hs-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit">Hifadhi hesabu</button></div>
+    </form>
+    <div class="panel">
+      <h2>Hesabu zilizopita</h2>
+      <div class="box" id="hsList"></div>
+    </div>
+  </section>
+
+  <!-- RIPOTI -->
+  <section class="wview" id="w-ripoti" hidden>
+    <button class="back" type="button" data-wgo="nyumbani">← Nyumbani</button>
+    <h2 class="sec-title">Ripoti ya wakala</h2>
+    <div class="periods" id="wrRange" style="margin-bottom:12px">
+      <button class="chip" data-wr="leo" aria-pressed="true" type="button">Leo</button>
+      <button class="chip" data-wr="jana" aria-pressed="false" type="button">Jana</button>
+      <button class="chip" data-wr="wiki" aria-pressed="false" type="button">Wiki hii</button>
+      <button class="chip" data-wr="wikiIliyopita" aria-pressed="false" type="button">Wiki iliyopita</button>
+      <button class="chip" data-wr="mwezi" aria-pressed="false" type="button">Mwezi huu</button>
+      <button class="chip" data-wr="mweziUliopita" aria-pressed="false" type="button">Mwezi uliopita</button>
+      <button class="chip" data-wr="custom" aria-pressed="false" type="button">Chagua tarehe</button>
+    </div>
+    <form class="box" id="wrForm" novalidate>
+      <div class="field"><label for="wr-from">Kuanzia tarehe</label><input id="wr-from" type="date"></div>
+      <div class="field"><label for="wr-to">Hadi tarehe</label><input id="wr-to" type="date"></div>
+      <div class="actions">
+        <button class="btn" type="button" id="wr-pdf">Tuma PDF</button>
+        <button class="btn alt" type="button" id="wr-excel">Pakua Excel</button>
+        <button class="btn alt" type="button" id="wr-copy">Nakili maandishi</button>
+      </div>
+    </form>
+    <div class="panel"><div id="wr-preview"></div></div>
+  </section>
+
+  <!-- HISTORIA -->
+  <section class="wview" id="w-historia" hidden>
+    <div class="periods" id="whFilter" style="margin-bottom:12px">
+      <button class="chip" data-wh="zote" aria-pressed="true" type="button">Zote</button>
+      <button class="chip" data-wh="miamala" aria-pressed="false" type="button">Miamala</button>
+      <button class="chip" data-wh="floti" aria-pressed="false" type="button">Floti</button>
+      <button class="chip" data-wh="matumizi" aria-pressed="false" type="button">Matumizi</button>
+    </div>
+    <div class="field" style="margin-bottom:12px;max-width:220px"><label for="wh-tarehe">Tarehe</label><input id="wh-tarehe" type="date"></div>
+    <div class="box" id="whList"></div>
+  </section>
+</div>
+
+<nav class="tabs" id="wakalaTabs" aria-label="Sehemu za wakala" hidden>
+  <div class="in">
+    <button type="button" data-wtab="nyumbani" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7M5 9.5V20h5v-6h4v6h5V9.5"/></svg>Nyumbani</button>
+    <button type="button" data-wtab="muamala"><svg viewBox="0 0 24 24"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>Muamala</button>
+    <button type="button" data-wtab="floti"><svg viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 18.5h4"/></svg>Floti</button>
+    <button type="button" data-wtab="matumizi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 15h2"/></svg>Matumizi</button>
+    <button type="button" data-wtab="hesabu"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Hesabu</button>
+    <button type="button" data-wtab="historia"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>Historia</button>
+  </div>
+</nav>
+
+<script src="config.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>
