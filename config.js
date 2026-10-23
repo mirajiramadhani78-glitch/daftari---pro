@@ -10,10 +10,10 @@ window.APP_CONFIG = {
   sikuMajaribio: 14,
 
   // Wateja walipe wapi
-  malipo: { njia: "M-Pesa", namba: "WEKA_NAMBA_YAKO", jina: "WEKA_JINA_LAKO" },
+  malipo: { njia: "Mixx by Yas", namba: "0655 762 452", jina: "" },
 
   // WhatsApp yako (255…): mteja akishalipa, app inamfungulia ujumbe wa kukutumia
-  adminWhatsApp: "",
+  adminWhatsApp: "255655762452",
 
   // Firebase: nakili kutoka Firebase → Project settings → Your apps → "firebaseConfig".
   firebase: {
