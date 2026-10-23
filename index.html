@@ -260,6 +260,38 @@ form.box details.more{margin-top:0;grid-column:1/-1}
 .sizerow label input:not([type]){padding:8px;font-size:15px}
 .sizerow.has{opacity:.6}
 .sizerow small{font-weight:500;color:var(--muted)}
+
+/* ---- welcome / sign-in screen ---- */
+#gate{padding:0;background:var(--bg)}
+#gate .gatehero{background:radial-gradient(120% 90% at 100% 0%,rgba(229,165,10,.35),transparent 55%),linear-gradient(160deg,#1f7442 0%,#145230 70%);color:#fff;
+  padding:calc(env(safe-area-inset-top,0px) + 22px) max(20px,env(safe-area-inset-right,0px)) 76px max(20px,env(safe-area-inset-left,0px))}
+#gate .gateheroin{max-width:420px;margin:0 auto}
+#gate .gatelang .eyebrow{color:rgba(255,255,255,.8)}
+#gate .gatelang .linkbtn{color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 12px;font-size:13px}
+#gate .gatebrand{margin-top:22px;gap:12px}
+#gate .gatebrand .logo{width:54px;height:54px;background:#fff;border-radius:16px;padding:7px;box-shadow:0 10px 24px -10px rgba(0,0,0,.4)}
+#gate .gatetitle{color:#fff;font-size:clamp(30px,9vw,38px);font-weight:800;letter-spacing:-.02em}
+#gate .gatetag{margin:12px 0 0;font-size:16px;line-height:1.45;color:rgba(255,255,255,.88);max-width:30ch}
+#gate .gateperks{list-style:none;padding:0;margin:16px 0 0;display:flex;flex-direction:column;gap:7px}
+#gate .gateperks li{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600}
+#gate .gateperks svg{width:20px;height:20px;flex-shrink:0;padding:3px;border-radius:50%;background:rgba(229,165,10,.95);stroke:#2b1d00;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+#gate:not(.welcome) .gatetag,#gate:not(.welcome) .gateperks{display:none}
+#gate:not(.welcome) .gatehero{padding-bottom:64px}
+#gate .gatebox{position:relative;max-width:420px;margin:-52px auto 0;background:var(--surface);border-radius:22px;padding:20px 18px 22px;
+  box-shadow:0 24px 50px -28px rgba(18,40,26,.55),0 0 0 1px var(--line)}
+@media (max-width:452px){#gate .gatebox{margin-left:16px;margin-right:16px}}
+#gate .gateform{margin-top:0}
+#gate .gatehead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#gate .gatehead h2{font-size:22px;font-weight:800}
+#gate .gatebadge{background:var(--maize-soft);color:var(--maize);font-weight:800;font-size:12.5px;padding:5px 10px;border-radius:999px}
+#gate .gateform .btn{padding:14px 18px;font-size:16px;border-radius:12px}
+#gate .gateor{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-weight:600;margin-top:4px}
+#gate .gateor::before,#gate .gateor::after{content:"";flex:1;height:1px;background:var(--line)}
+#gate .btn.gatenew{background:#E5A50A;color:#2b1d00;display:flex;flex-direction:column;gap:2px;line-height:1.2}
+#gate .btn.gatenew small{font-weight:600;font-size:12.5px;opacity:.8}
+#gate .gatefoot{text-align:center;margin:18px 16px calc(env(safe-area-inset-bottom,0px) + 24px);font-size:14px}
+#gate .gatefoot a{color:var(--accent);font-weight:700;text-decoration:none}
+#gate #gateLoading .note{text-align:center;margin:6px 0}
 </style>
 </head>
 <body>
@@ -708,9 +740,19 @@ form.box details.more{margin-top:0;grid-column:1/-1}
 
 <!-- LOGIN / SIGN-UP: covers the app until someone is signed in and allowed -->
 <div class="gate" id="gate">
-  <div class="gatebox">
+  <div class="gatehero">
+   <div class="gateheroin">
     <div class="gatelang"><div class="eyebrow">Hesabu za biashara yako</div><button class="linkbtn" type="button" data-lang-btn translate="no">English</button></div>
     <div class="gatebrand"><svg class="logo" viewBox="0 0 120 120" aria-hidden="true"><path d="M57 34 C44 26 28 24 12 28 V96 C28 92 44 94 57 102 Z" fill="var(--accent)"/><path d="M63 34 C76 26 92 24 108 28 V96 C92 92 76 94 63 102 Z" fill="#E5A50A"/><rect x="22" y="46" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="60" width="26" height="5" rx="2.5" fill="var(--surface)"/><rect x="22" y="74" width="18" height="5" rx="2.5" fill="var(--surface)"/><path d="M75 64 L83 72 L97 55" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg><h1 class="gatetitle" id="gateTitle" translate="no">Daftari Pro</h1></div>
+    <p class="gatetag">Mauzo, stoo, madeni na faida ya biashara yako, kwenye simu.</p>
+    <ul class="gateperks">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Faida yako halisi kila siku</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Inafanya kazi bila intaneti</li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Ripoti kwa PDF, Excel na WhatsApp</li>
+    </ul>
+   </div>
+  </div>
+  <div class="gatebox">
 
     <div id="gateLoading"><p class="note">Inafungua…</p></div>
 
@@ -719,12 +761,14 @@ form.box details.more{margin-top:0;grid-column:1/-1}
     </div>
 
     <form id="loginForm" class="gateform" hidden novalidate>
+      <div class="gatehead"><h2>Karibu tena</h2></div>
       <div class="field"><label for="li-email">Barua pepe</label><input id="li-email" type="email" inputmode="email" autocomplete="username"></div>
       <div class="field"><label for="li-pass">Nenosiri</label><input id="li-pass" type="password" autocomplete="current-password"></div>
       <p class="err" id="li-err" hidden></p>
       <button class="btn" type="submit" id="li-submit">Ingia</button>
-      <div class="gatelinks"><button type="button" class="linkbtn" data-gate="signup">Fungua akaunti</button><button type="button" class="linkbtn" data-gate="reset">Umesahau nenosiri?</button></div>
-      <button type="button" class="btn alt" data-gate="simu">Mfanyakazi? Ingia kwa namba ya simu</button>
+      <div class="gatelinks"><button type="button" class="linkbtn" data-gate="simu">Mfanyakazi? Ingia kwa simu</button><button type="button" class="linkbtn" data-gate="reset">Umesahau nenosiri?</button></div>
+      <div class="gateor"><span>Mpya kwenye Daftari Pro?</span></div>
+      <button type="button" class="btn gatenew" data-gate="signup">Fungua akaunti<small>Mwezi 1 bure · hakuna kadi ya benki</small></button>
     </form>
 
     <form id="phoneForm" class="gateform" hidden novalidate>
@@ -737,6 +781,7 @@ form.box details.more{margin-top:0;grid-column:1/-1}
     </form>
 
     <form id="signupForm" class="gateform" hidden novalidate>
+      <div class="gatehead"><h2>Fungua akaunti</h2><span class="gatebadge">Siku <span class="trialDays">30</span> bure</span></div>
       <div class="field"><label for="su-jina">Jina lako</label><input id="su-jina" maxlength="60" autocomplete="name"></div>
       <div class="field"><label for="su-email">Barua pepe</label><input id="su-email" type="email" inputmode="email" autocomplete="username"></div>
       <div class="field"><label for="su-pass">Nenosiri (herufi 6 au zaidi)</label><input id="su-pass" type="password" autocomplete="new-password"></div>
@@ -789,6 +834,7 @@ form.box details.more{margin-top:0;grid-column:1/-1}
       <div class="gatelinks" style="margin-top:12px"><button type="button" class="linkbtn" id="lockRetry">Angalia tena</button><button type="button" class="linkbtn adminBtn" hidden>Admin</button><button type="button" class="linkbtn" id="lockOut">Toka</button></div>
     </div>
   </div>
+  <p class="gatefoot" id="gateFoot"><a href="karibu/">Ona Daftari Pro inavyofanya kazi →</a></p>
 </div>
 
 <nav class="tabs" id="dukaTabs" aria-label="Sehemu" hidden>
