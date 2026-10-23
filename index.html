@@ -251,6 +251,7 @@ details.more[open]>summary::before{content:'▾ ';}
 form.box details.more{margin-top:0;grid-column:1/-1}
 .moregrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
 @media (max-width:380px){.moregrid{grid-template-columns:1fr}}
+.subform .actions{margin-top:2px}
 </style>
 </head>
 <body>
@@ -438,10 +439,29 @@ form.box details.more{margin-top:0;grid-column:1/-1}
     <h2 class="sec-title">Rekodi uzalishaji</h2>
     <form class="box" id="zForm" novalidate>
       <div class="field full"><label for="z-bidhaa">Bidhaa uliyozalisha</label><select id="z-bidhaa"></select></div>
+      <div class="subform" id="z-new" hidden>
+        <div class="field full"><b>Bidhaa mpya unayozalisha</b></div>
+        <div class="field"><label for="zn-jina">Jina</label><input id="zn-jina" maxlength="60" list="zNames" autocomplete="off" placeholder="Mfano: Tofali"></div>
+        <div class="field"><label for="zn-kipimo">Ukubwa / kipimo</label><input id="zn-kipimo" maxlength="30" list="zSizes" autocomplete="off" placeholder="Mfano: inchi 5"></div>
+        <div class="field"><label for="zn-bei">Bei ya kuuza kwa pc (TSh)</label><input id="zn-bei" type="number" inputmode="numeric" min="0" step="any" placeholder="Mfano: 1200"></div>
+        <div class="field"><label for="zn-stoo">Zilizopo sasa (pcs)</label><input id="zn-stoo" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+        <p class="hint">Kila ukubwa ni bidhaa yake: mfano "Tofali inchi 5" na "Tofali inchi 6". Idadi inahesabiwa kwa pcs.</p>
+        <p class="err" id="zn-err" hidden></p>
+        <div class="actions"><button class="btn" type="button" id="zn-save">Ongeza bidhaa</button><button class="btn alt" type="button" id="zn-cancel">Ghairi</button></div>
+      </div>
       <div class="field"><label for="z-idadi" id="z-idadiL">Idadi iliyozalishwa</label><input id="z-idadi" type="number" inputmode="numeric" min="0" step="any" placeholder="Mfano: 400"></div>
       <div class="field"><label for="z-tarehe">Tarehe</label><input id="z-tarehe" type="date"></div>
       <div class="field full"><label>Malighafi zilizotumika</label><div id="z-rows" class="zrows"></div>
         <div><button class="mini" type="button" id="z-add">+ Ongeza malighafi</button></div></div>
+      <div class="subform" id="z-newm" hidden>
+        <div class="field full"><b>Malighafi mpya</b></div>
+        <div class="field"><label for="zm-jina">Jina</label><input id="zm-jina" maxlength="60" list="zMali" autocomplete="off" placeholder="Mfano: Saruji"></div>
+        <div class="field"><label for="zm-kipimo">Inapimwa kwa</label><select id="zm-kipimo"><option value="Mfuko">Mfuko</option><option value="Tripu">Tripu</option><option value="Lori">Lori</option><option value="Tani">Tani</option><option value="Kipande">Kipande</option><option value="Dumu">Dumu</option><option value="Roli">Roli</option></select></div>
+        <div class="field"><label for="zm-bei" id="zm-beiL">Bei ya kununua kwa mfuko (TSh)</label><input id="zm-bei" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+        <div class="field"><label for="zm-stoo" id="zm-stooL">Mifuko iliyopo sasa</label><input id="zm-stoo" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
+        <p class="err" id="zm-err" hidden></p>
+        <div class="actions"><button class="btn" type="button" id="zm-save">Ongeza malighafi</button><button class="btn alt" type="button" id="zm-cancel">Ghairi</button></div>
+      </div>
       <div class="field"><label for="z-gharama">Gharama nyingine (vibarua, maji…)</label><input id="z-gharama" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
       <div class="field"><label for="z-maelezo">Maelezo (si lazima)</label><input id="z-maelezo" maxlength="120"></div>
       <p class="hint" id="z-calc"></p>
@@ -673,6 +693,9 @@ form.box details.more{margin-top:0;grid-column:1/-1}
 
 <datalist id="customers"></datalist>
 <datalist id="kundiList"></datalist>
+<datalist id="zNames"><option value="Tofali"></option><option value="Culvert"></option><option value="Nguzo"></option><option value="Pavement blocks"></option><option value="Kerb stone"></option><option value="Vigae"></option><option value="Kokoto"></option></datalist>
+<datalist id="zSizes"><option value="inchi 4"></option><option value="inchi 5"></option><option value="inchi 6"></option><option value="inchi 8"></option><option value="300mm"></option><option value="450mm"></option><option value="600mm"></option><option value="900mm"></option><option value="1200mm"></option><option value="mita 2.5"></option><option value="mita 3"></option></datalist>
+<datalist id="zMali"><option value="Saruji"></option><option value="Mchanga"></option><option value="Kokoto"></option><option value="Nondo"></option><option value="Waya"></option><option value="Maji"></option><option value="Vumbi la mawe"></option></datalist>
 
 <!-- LOGIN / SIGN-UP: covers the app until someone is signed in and allowed -->
 <div class="gate" id="gate">
