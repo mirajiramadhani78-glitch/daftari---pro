@@ -252,6 +252,14 @@ form.box details.more{margin-top:0;grid-column:1/-1}
 .moregrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
 @media (max-width:380px){.moregrid{grid-template-columns:1fr}}
 .subform .actions{margin-top:2px}
+
+.sizes{display:flex;flex-direction:column;gap:6px}
+.sizerow{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.sizerow label{display:flex;gap:8px;align-items:center;font-size:15px;color:var(--ink);font-weight:600}
+.sizerow label input[type=checkbox]{width:22px;height:22px;flex-shrink:0}
+.sizerow label input:not([type]){padding:8px;font-size:15px}
+.sizerow.has{opacity:.6}
+.sizerow small{font-weight:500;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -441,11 +449,10 @@ form.box details.more{margin-top:0;grid-column:1/-1}
       <div class="field full"><label for="z-bidhaa">Bidhaa uliyozalisha</label><select id="z-bidhaa"></select></div>
       <div class="subform" id="z-new" hidden>
         <div class="field full"><b>Bidhaa mpya unayozalisha</b></div>
-        <div class="field"><label for="zn-jina">Jina</label><input id="zn-jina" maxlength="60" list="zNames" autocomplete="off" placeholder="Mfano: Tofali"></div>
-        <div class="field"><label for="zn-kipimo">Ukubwa / kipimo</label><input id="zn-kipimo" maxlength="30" list="zSizes" autocomplete="off" placeholder="Mfano: inchi 5"></div>
-        <div class="field"><label for="zn-bei">Bei ya kuuza kwa pc (TSh)</label><input id="zn-bei" type="number" inputmode="numeric" min="0" step="any" placeholder="Mfano: 1200"></div>
-        <div class="field"><label for="zn-stoo">Zilizopo sasa (pcs)</label><input id="zn-stoo" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
-        <p class="hint">Kila ukubwa ni bidhaa yake: mfano "Tofali inchi 5" na "Tofali inchi 6". Idadi inahesabiwa kwa pcs.</p>
+        <div class="field full"><label for="zn-aina">Bidhaa</label><select id="zn-aina"></select></div>
+        <div class="field full" id="zn-jinaWrap" hidden><label for="zn-jina">Jina la bidhaa</label><input id="zn-jina" maxlength="60" autocomplete="off" placeholder="Mfano: Matofali ya kuchoma"></div>
+        <div class="field full"><label>Tiki vipimo unavyozalisha, weka bei ya kuuza kwa pc</label><div id="zn-sizes" class="sizes"></div></div>
+        <p class="hint">Kila kipimo kinakuwa bidhaa yake, mfano "Tofali inchi 5" na "Tofali inchi 6". Idadi inahesabiwa kwa pcs.</p>
         <p class="err" id="zn-err" hidden></p>
         <div class="actions"><button class="btn" type="button" id="zn-save">Ongeza bidhaa</button><button class="btn alt" type="button" id="zn-cancel">Ghairi</button></div>
       </div>
@@ -455,7 +462,8 @@ form.box details.more{margin-top:0;grid-column:1/-1}
         <div><button class="mini" type="button" id="z-add">+ Ongeza malighafi</button></div></div>
       <div class="subform" id="z-newm" hidden>
         <div class="field full"><b>Malighafi mpya</b></div>
-        <div class="field"><label for="zm-jina">Jina</label><input id="zm-jina" maxlength="60" list="zMali" autocomplete="off" placeholder="Mfano: Saruji"></div>
+        <div class="field"><label for="zm-aina">Malighafi</label><select id="zm-aina"></select></div>
+        <div class="field" id="zm-jinaWrap" hidden><label for="zm-jina">Jina</label><input id="zm-jina" maxlength="60" autocomplete="off" placeholder="Mfano: Chokaa"></div>
         <div class="field"><label for="zm-kipimo">Inapimwa kwa</label><select id="zm-kipimo"><option value="Mfuko">Mfuko</option><option value="Tripu">Tripu</option><option value="Lori">Lori</option><option value="Tani">Tani</option><option value="Kipande">Kipande</option><option value="Dumu">Dumu</option><option value="Roli">Roli</option></select></div>
         <div class="field"><label for="zm-bei" id="zm-beiL">Bei ya kununua kwa mfuko (TSh)</label><input id="zm-bei" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
         <div class="field"><label for="zm-stoo" id="zm-stooL">Mifuko iliyopo sasa</label><input id="zm-stoo" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div>
