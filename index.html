@@ -292,6 +292,9 @@ form.box details.more{margin-top:0;grid-column:1/-1}
 #gate .gatefoot{text-align:center;margin:18px 16px calc(env(safe-area-inset-bottom,0px) + 24px);font-size:14px}
 #gate .gatefoot a{color:var(--accent);font-weight:700;text-decoration:none}
 #gate #gateLoading .note{text-align:center;margin:6px 0}
+
+.act .actsub{font-size:12px;font-weight:700;color:var(--neg,#b42318);min-height:0}
+.act .actsub:empty{display:none}
 </style>
 </head>
 <body>
@@ -904,9 +907,10 @@ form.box details.more{margin-top:0;grid-column:1/-1}
       <div class="kpi"><span>Floti yote</span><b id="wkFloat"><small>TSh</small>0</b><em id="wkFloatSub">mitandao yote</em></div>
       <div class="kpi net" id="wkNetBox"><span>Kamisheni ya leo</span><b id="wkKam"><small>TSh</small>0</b><em id="wkKamSub">—</em></div>
     </div>
-    <div class="actgrid" id="wActs">
+    <div class="actgrid four" id="wActs">
       <button type="button" class="act" data-wact="weka"><svg viewBox="0 0 24 24"><path d="M12 20V8M7 13l5-5 5 5"/><path d="M4 4h16"/></svg>Kuweka</button>
       <button type="button" class="act" data-wact="toa"><svg viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>Kutoa</button>
+      <button type="button" class="act" data-wact="madeni"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M17 8h4M19 6v4"/></svg>Madeni<small class="actsub" id="wkDeniSub"></small></button>
       <button type="button" class="act" data-wact="ripoti"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 17v-3M12 17v-6M15 17v-4"/></svg>Ripoti</button>
     </div>
     <div class="panel">
@@ -935,7 +939,8 @@ form.box details.more{margin-top:0;grid-column:1/-1}
       <div class="field"><label for="tx-kiasi">Kiasi (TSh)</label><input id="tx-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
       <div class="field"><label for="tx-kam">Kamisheni (si lazima)</label><input id="tx-kam" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
       <div class="field"><label for="tx-simu">Simu ya mteja (si lazima)</label><input id="tx-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
-      <div class="field"><label for="tx-ref">Kumbukumbu / jina (si lazima)</label><input id="tx-ref" maxlength="60" placeholder="Msimbo au jina la mteja"></div>
+      <label class="check full" id="tx-deniWrap"><input type="checkbox" id="tx-deni"> Mteja hajalipa bado (deni)</label>
+      <div class="field"><label for="tx-ref" id="tx-refL">Kumbukumbu / jina (si lazima)</label><input id="tx-ref" maxlength="60" placeholder="Msimbo au jina la mteja"></div>
       <div class="field"><label for="tx-tarehe">Tarehe</label><input id="tx-tarehe" type="date"></div>
       <p class="hint" id="tx-effect"></p>
       <p class="err" id="tx-err" hidden></p>
@@ -1013,6 +1018,31 @@ form.box details.more{margin-top:0;grid-column:1/-1}
     </div>
   </section>
 
+  <!-- MADENI -->
+  <section class="wview" id="w-madeni" hidden>
+    <button class="back" type="button" data-wgo="nyumbani">← Nyumbani</button>
+    <h2 class="sec-title">Madeni ya wateja</h2>
+    <form class="box" id="mdForm" novalidate>
+      <div class="seg" id="mdAina">
+        <button type="button" data-md="deni" aria-pressed="true">Mteja amekopa<small>nimempa pesa au floti</small></button>
+        <button type="button" data-md="lipa" aria-pressed="false">Mteja amelipa<small>amerudisha deni</small></button>
+      </div>
+      <div class="field"><label for="md-mteja">Jina la mteja</label><input id="md-mteja" maxlength="60" list="md-names" autocomplete="off"><datalist id="md-names"></datalist></div>
+      <div class="field"><label for="md-simu">Simu (si lazima)</label><input id="md-simu" type="tel" inputmode="tel" maxlength="20" placeholder="07XX XXX XXX"></div>
+      <div class="field"><label for="md-kiasi">Kiasi (TSh)</label><input id="md-kiasi" type="number" inputmode="numeric" min="0" step="any" placeholder="0"></div>
+      <div class="field"><label for="md-mt" id="md-mtL">Nimempa kutoka</label><select id="md-mt"></select></div>
+      <div class="field"><label for="md-tarehe">Tarehe</label><input id="md-tarehe" type="date"></div>
+      <div class="field"><label for="md-maelezo">Maelezo (si lazima)</label><input id="md-maelezo" maxlength="120"></div>
+      <p class="hint" id="md-effect"></p>
+      <p class="err" id="md-err" hidden></p>
+      <div class="actions"><button class="btn" type="submit" id="md-submit">Rekodi deni</button></div>
+    </form>
+    <div class="panel">
+      <h2>Wanaodaiwa <small id="mdTotal"></small></h2>
+      <div class="box" id="mdList"></div>
+    </div>
+  </section>
+
   <!-- RIPOTI -->
   <section class="wview" id="w-ripoti" hidden>
     <button class="back" type="button" data-wgo="nyumbani">← Nyumbani</button>
@@ -1045,6 +1075,7 @@ form.box details.more{margin-top:0;grid-column:1/-1}
       <button class="chip" data-wh="miamala" aria-pressed="false" type="button">Miamala</button>
       <button class="chip" data-wh="floti" aria-pressed="false" type="button">Floti</button>
       <button class="chip" data-wh="matumizi" aria-pressed="false" type="button">Matumizi</button>
+      <button class="chip" data-wh="madeni" aria-pressed="false" type="button">Madeni</button>
     </div>
     <div class="field" style="margin-bottom:12px;max-width:220px"><label for="wh-tarehe">Tarehe</label><input id="wh-tarehe" type="date"></div>
     <div class="box" id="whList"></div>
