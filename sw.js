@@ -1,6 +1,6 @@
 // Offline app shell: the app opens without internet; data offline is handled by Firestore's own cache.
 // install fetches every file with cache:'reload' so a new version never stores old copies from the phone's HTTP cache
-const CACHE='daftaripro-1.0.0-mvovdozc';
+const CACHE='daftaripro-1.0.0-mvrofz3t';
 const SHELL=["./","./app.js","./apple-touch-icon.png","./config.js","./favicon.png","./icon-192.png","./icon-512.png","./icon-maskable-512.png","./index.html","./manifest.webmanifest"];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL.map(u=>new Request(u,{cache:'reload'})))).then(()=>self.skipWaiting()));
